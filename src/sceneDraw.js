@@ -1,10 +1,12 @@
+var SD = {};
+
 var NUMBER_POINTS = 600;
 
-var generateIdentificator = function() {
+SD.generateIdentificator = function() {
 	return Math.random().toString();
 };
 
-var objectCloner = function (objProto, spec) {
+SD.objectCloner = function (objProto, spec) {
 	var newObject = Object.create(objProto);
 	if (spec) {
 		for (var field in objProto) {
@@ -16,32 +18,55 @@ var objectCloner = function (objProto, spec) {
 	return newObject;
 }
 
-var rangeMaker = function(spec) {
+SD.rangeMaker = function(spec) {
 	var rangeProto = {
 		xMin: 0,
 		xMax: 100,
 		yMin: 0,
 		yMax: 100
 	};
-	return objectCloner(rangeProto, spec);
+	return SD.objectCloner(rangeProto, spec);
 }
 
-var Range = function(xMin, xMax, yMin, yMax) {
-  this.xMin = xMin;
-  this.xMax = xMax;
-  this.yMin = yMin;
-  this.yMax = yMax;
-}
+SD.elementMaker = function(spec) {
+	var elementProto = {
+		parent: null,
+		children: [],
+		range: SD.rangeMaker(),
+		tagSVG: "g",
+		svgElement: null
+	}
+	newElement = SD.objectCloner(elementProto, spec);
+
+	newElement.identificator = SD.generateIdentificator();
+	newElement.add = function(element) {
+		this.children.push(element);
+		element.parent = this;
+	};
+	newElement.remove = function(element) {
+		var index = this.children.indexOf(element);
+		if (index > -1) {
+			this.children.splice(index, 1);
+		}
+		element.parent = null;
+	};
+
+	newElement.xRange = function() {return this.range.xMax - this.range.xMin};
+  newElement.yRange = function() {return this.range.yMax - this.range.yMin};
+	
+	
+
+	return newElement;
+};
 
 function SceneElement() {
-
-  this.identificator = generateIdentificator();
+  this.identificator = SD.generateIdentificator();
 	this.parentSceneElement = null;
 	this.children = [];
 
 	this.svgElement = null;
 	this.tagSVG="g";
-	this.range = rangeMaker();
+	this.range = SD.rangeMaker();
 	this.add = function(that) {
 		this.children.push(that);
 		that.parentSceneElement = this;
@@ -84,8 +109,6 @@ function SceneElement() {
 			this.svgElement.appendChild(that);
 		};
 	};
-
-	
 };
 
 function Scene(div) {
@@ -128,7 +151,7 @@ function GroupOfSceneElements(parentSceneElement) {
 		}
 	};
 	
-	this.identificator = generateIdentificator();
+	this.identificator = SD.generateIdentificator();
 	this.parentSceneElement = parentSceneElement||null;
   this.length = function() {
     return this._lista.length;
@@ -161,7 +184,7 @@ function GroupOfSceneElements(parentSceneElement) {
 GroupOfSceneElements.prototype = new SceneElement();
 
 function Circle(x,y,r) {
-	this.identificator = generateIdentificator();
+	this.identificator = SD.generateIdentificator();
 	this.x = x||0;
 	this.y = y||0;
 	this.r = r||1;
@@ -181,7 +204,7 @@ function Circle(x,y,r) {
 Circle.prototype = new SceneElement();
 
 function Point(x,y) {
-	this.identificator = generateIdentificator();
+	this.identificator = SD.generateIdentificator();
 	this.x = x||0;
 	this.y = y||0;
 }
@@ -300,3 +323,12 @@ function Flecha(x1,y1,x2,y2, identificator) {
 }
 
 Flecha.prototype = new SceneElement();
+
+
+//compability:
+var Range = function(xMin, xMax, yMin, yMax) {
+  this.xMin = xMin;
+  this.xMax = xMax;
+  this.yMin = yMin;
+  this.yMax = yMax;
+}

@@ -1,61 +1,127 @@
-describe("rangeMaker()", function() {
-	var range=rangeMaker();
-	it("it should have {xMin: 0, xMax: 100, yMin: 0, yMax: 100};", function() {
-		var rangeProto = {
-			xMin: 0,
-			xMax: 100,
-			yMin: 0,
-			yMax: 100
-		};
-		for (var field in rangeProto) {
-			expect(range[field]).toBe(rangeProto[field]);
-		};
+var rangeProto = {
+	xMin: 0,
+	xMax: 100,
+	yMin: 0,
+	yMax: 100
+};
+
+describe("generateIdentificator", function() {
+	it("should be good", function() {
+		expect(SD.generateIdentificator()).toBeGoodId();
 	});
 });
 
-describe("new SceneElement()", function() {
-  var element, element2;
-  beforeEach(function() {
-    element = new SceneElement();
-  });
-  describe("#parentSceneElement", function() {
-    it("should be null", function() {
-      expect(element.parentSceneElement).toBeNull();
-    });
+describe("rangeMaker", function() {
+	var range;
+	var rangeSpec={xMin: -100, xMax: 200, yMin: 50, yMax: 150};
+	describe("rangeMaker()", function() {
+		it("it should be "+JSON.stringify(rangeProto), function() {
+			range=SD.rangeMaker();
+			expect(range).toBeExtensionOf(rangeProto);
+		})
 	});
-	
-	describe("#identificator", function() {
-		it("should be good", function() {
-			expect(element.identificator).toBeGoodId();
-		});
+	describe("rangeMaker(spec), spec="+JSON.stringify(rangeSpec), function() {
+		var range=SD.rangeMaker(rangeSpec);
+		it("it should have have the spec given", function() {
+			expect(range).toBeExtensionOf(rangeSpec);
+		})
 	});
-	
-	describe("#svgElement", function() {
-		it("should be null", function() {
-			expect(element.svgElement).toBeNull();
+});
+
+describe("elementMaker", function() {
+	describe("elementMaker()", function() {
+		var element, element2;
+		beforeEach(function() {
+			spyOn(SD, "generateIdentificator");
+			element = SD.elementMaker();
+			element2 = SD.elementMaker();
 		});
-		describe("after calling #updateSVG", function() {
-			beforeEach(function() {
-				element.updateSVG();
+		describe("#identificator", function() {
+			it("should call SD.generateIdentificator", function() {
+				expect(SD.generateIdentificator).toHaveBeenCalled();
+			})
+		});
+		describe("#parent", function() {
+			it("should be null", function() {
+				expect(element.parent).toBeNull();
 			});
-			it("should be <g>", function() {
-				expect(element.svgElement.tagName).toBe("g");
+		});
+		describe("#children", function() {
+			it("should be an empty list after the initialization", function() {
+				expect(element.children).toEqual([]);
 			});
-			it("shoud have id = #identificator", function() {
-				expect(element.svgElement.id).toBe(element.identificator);
-			});
-			describe("after changing tagSVG to 'path' and updating again", function() {
+		});
+		describe("#add", function() {
+			describe("adding one element", function() {
 				beforeEach(function() {
-					element.tagSVG = "path";
+					element.add(element2);
+				});
+				it("#children should have length 1", function() {
+					expect(element.children.length).toBe(1);
+				});
+				it("element2.parentSceneElement =  element", function() {
+					expect(element2.parent).toBe(element);
+				});
+			});
+		});
+		describe("#remove", function() {
+			describe("removing an element after adding it", function() {
+				beforeEach(function() {
+					element.add(element2);
+					element.remove(element2);
+				});
+				it("#children should have length 0", function() {
+					expect(element.children.length).toBe(0);
+				});
+				it("element2.parentSceneElement = null", function() {
+					expect(element2.parent).toBeNull();
+				});
+			});
+		});
+
+		describe("#range", function() {
+			it("it should be equal to "+JSON.stringify(rangeProto), function() {
+				expect(element.range).toBeExtensionOf(rangeProto);
+			});
+		});
+		describe("#xRange() and #yRange()", function() {
+			it("should be equal to 100", function() {
+				expect(element.xRange()).toBe(100);
+				expect(element.yRange()).toBe(100);
+			});
+		});
+
+		describe("#tagSVG", function() {
+			it("should be", function() {
+				expect(element.tagSVG).toBe("g");
+			})
+		});
+		describe("#svgElement", function() {
+			it("should be null", function() {
+				expect(element.svgElement).toBeNull();
+			});
+			describe("after calling #updateSVG", function() {
+				beforeEach(function() {
 					element.updateSVG();
 				});
-				it("should be <path>", function() {
-					expect(element.svgElement.tagName).toBe("path");
+				it("should be <g>", function() {
+					expect(element.svgElement.tagName).toBe("g");
+				});
+				it("shoud have id = #identificator", function() {
+					expect(element.svgElement.id).toBe(element.identificator);
+				});
+				describe("after changing tagSVG to 'path' and updating again", function() {
+					beforeEach(function() {
+						element.tagSVG = "path";
+						element.updateSVG();
+					});
+					it("should be <path>", function() {
+						expect(element.svgElement.tagName).toBe("path");
+					})
 				})
-			})
-		}); 
-	});
-
+			}); 
+		});
+		
 	describe("#appendSVG", function() {
 		describe("when the argument is SceneElement", function() {
 			beforeEach(function() {
@@ -123,48 +189,8 @@ describe("new SceneElement()", function() {
 		})
 	});
 	
-	describe("#range", function() {
-		it("al inicion deberia tener xMin = 0", function() {
-			expect(element.range.xMin).toBe(0);
-		});
-	});
-
-	describe("#children", function() {
-    it("should be an empty list after the initialization", function() {
-      expect(element.children.length).toBe(0);
-    });
-  });
-
-  describe("#add", function() {
-    describe("adding one element", function() {
-      beforeEach(function() {
-				element.add(element2);
-      });
-			it("#children should have length 1", function() {
-				expect(element.children.length).toBe(1);
-      });
-      it("element2.parentSceneElement =  element", function() {
-				expect(element2.parentSceneElement).toBe(element);
-      });
-    });
-  });
-
-	describe("#remove", function() {
-    describe("removing an element after adding it", function() {
-      beforeEach(function() {
-				element.add(element2);
-				element.remove(element2);
-      });
-			it("#children should have length 0", function() {
-				expect(element.children.length).toBe(0);
-      });
-			it("element2.parentSceneElement = null", function() {
-				expect(element2.parentSceneElement).toBeNull();
-      });
-
-    });
-  });
-
+	
+});
 });
 
 describe("new Scene()", function() {

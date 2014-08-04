@@ -9,8 +9,28 @@ function isDescendant(descendant, child) {
 		return isDescendant(descendant, parent)
 	}
 }
+
 function isAntecedent(child, parent) {
 	return isDescendant(parent, child)
+}
+
+function whyNotExtends(actual,compObj) {
+	for (var field in compObj) {
+		if (actual[field]!= compObj[field]){
+			return "On field "+field+" actual: "+actual[field]+" given: " + compObj[field];
+		}
+	}
+	return null
+
+}
+
+function isExtensionOf(actual,compObj) {
+	var diff = whyNotExtends(actual,compObj);
+	if (!diff) {
+		return true
+	} else {
+		return false;
+	}
 }
 
 Array.prototype.duplicates = function() {
@@ -105,5 +125,16 @@ beforeEach(function() {
 				}
 			}
 		},
+		toBeExtensionOf: function() {
+			return {
+				compare: function(actual, compObj) {
+					return {
+						pass: isExtensionOf(actual,compObj),
+						message: whyNotExtends(actual,compObj) 
+					}
+				}
+			}
+		}
+
 	});
 }); 
