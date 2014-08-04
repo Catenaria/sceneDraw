@@ -1,8 +1,30 @@
 var NUMBER_POINTS = 600;
-var generateIdentificator = function() {
-		return Math.random().toString();
-	};
 
+var generateIdentificator = function() {
+	return Math.random().toString();
+};
+
+var objectCloner = function (objProto, spec) {
+	var newObject = Object.create(objProto);
+	if (spec) {
+		for (var field in objProto) {
+			if (spec[field]) {
+				newObject[field] = spec[field];
+			}
+		}
+	}
+	return newObject;
+}
+
+var rangeMaker = function(spec) {
+	var rangeProto = {
+		xMin: 0,
+		xMax: 100,
+		yMin: 0,
+		yMax: 100
+	};
+	return objectCloner(rangeProto, spec);
+}
 
 var Range = function(xMin, xMax, yMin, yMax) {
   this.xMin = xMin;
@@ -19,7 +41,7 @@ function SceneElement() {
 
 	this.svgElement = null;
 	this.tagSVG="g";
-	this.range = new Range(0,100,0,100); 
+	this.range = rangeMaker();
 	this.add = function(that) {
 		this.children.push(that);
 		that.parentSceneElement = this;

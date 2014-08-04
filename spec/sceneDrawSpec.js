@@ -1,3 +1,18 @@
+describe("rangeMaker()", function() {
+	var range=rangeMaker();
+	it("it should have {xMin: 0, xMax: 100, yMin: 0, yMax: 100};", function() {
+		var rangeProto = {
+			xMin: 0,
+			xMax: 100,
+			yMin: 0,
+			yMax: 100
+		};
+		for (var field in rangeProto) {
+			expect(range[field]).toBe(rangeProto[field]);
+		};
+	});
+});
+
 describe("new SceneElement()", function() {
   var element, element2;
   beforeEach(function() {
@@ -513,9 +528,3 @@ describe("new FunctionGraph()", function() {
 
 });
 
-describe("new Range()", function() {
-	var range=new Range();
-	it("deberia ser un constructor", function() {
-		expect(range).toBeDefined();
-	});
-});
