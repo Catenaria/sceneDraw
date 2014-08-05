@@ -21,7 +21,6 @@ function whyNotExtends(actual,compObj) {
 		}
 	}
 	return null
-
 }
 
 function isExtensionOf(actual,compObj) {

@@ -31,14 +31,13 @@ SD.rangeMaker = function(spec) {
 SD.elementMaker = function(spec) {
 	var elementProto = {
 		parent: null,
-		children: [],
 		range: SD.rangeMaker(),
 		tagSVG: "g",
 		svgElement: null
 	}
+	elementProto.identificator = SD.generateIdentificator();
 	newElement = SD.objectCloner(elementProto, spec);
-
-	newElement.identificator = SD.generateIdentificator();
+	newElement.children = [];
 	newElement.add = function(element) {
 		this.children.push(element);
 		element.parent = this;
@@ -66,146 +65,174 @@ SD.elementMaker = function(spec) {
 		//	parent.appendChild(this.svgElement);
 	};
 	
-	newElement.appendSVG = function(that) {
+	newElement.appendSVG = function(other) {
 		if (this.svgElement==null) {
 			this.updateSVG();
 		}
-		if (that instanceof SceneElement) {
-			if (that.svgElement) {
-				this.svgElement.appendChild(that.svgElement);
-			};
+		if (other.svgElement) {
+			this.svgElement.appendChild(other.svgElement);
 		}
-		else if (that instanceof HTMLElement || that instanceof SVGElement) {
-			this.svgElement.appendChild(that);
+		else if (other instanceof HTMLElement || other instanceof SVGElement) {
+			this.svgElement.appendChild(other);
 		};
 	};
 
+	newElement.plotSVG = function() {
+		this.updateSVG();
+		this.children.forEach(function(element) {element.plotSVG()});
+		//this.children.forEach(function(element) {
+		//	console.log(this);
+		//  this.appendSVG(element)
+		//});
+		for (var i=0;i<this.children.length;i++) {
+			this.appendSVG(this.children[i]);
+		}
+	};
 	return newElement;
 };
 
-function SceneElement() {
-  this.identificator = SD.generateIdentificator();
-	this.parentSceneElement = null;
-	this.children = [];
+// function SceneElement() {
+//   this.identificator = SD.generateIdentificator();
+// 	this.parentSceneElement = null;
+// 	this.children = [];
 
-	this.svgElement = null;
-	this.tagSVG="g";
-	this.range = SD.rangeMaker();
-	this.add = function(that) {
-		this.children.push(that);
-		that.parentSceneElement = this;
-	};
-	this.remove = function(that) {
-		var index = this.children.indexOf(that);
-		if (index > -1) {
-			this.children.splice(index, 1);
-		}
-		that.parentSceneElement = null;
-	};
+// 	this.svgElement = null;
+// 	this.tagSVG="g";
+// 	this.range = SD.rangeMaker();
+// 	this.add = function(that) {
+// 		this.children.push(that);
+// 		that.parentSceneElement = this;
+// 	};
+// 	this.remove = function(that) {
+// 		var index = this.children.indexOf(that);
+// 		if (index > -1) {
+// 			this.children.splice(index, 1);
+// 		}
+// 		that.parentSceneElement = null;
+// 	};
 
-	this.xRange = function() {return this.range.xMax - this.range.xMin};
-  this.yRange = function() {return this.range.yMax - this.range.yMin};
+// 	this.xRange = function() {return this.range.xMax - this.range.xMin};
+//   this.yRange = function() {return this.range.yMax - this.range.yMin};
 	
-	this.updateSVG = function() {
-		var newElement = document.createElementNS("http://www.w3.org/2000/svg", this.tagSVG);
-		newElement.setAttribute('id', this.identificator);
-		if (!this.svgElement || !this.svgElement.parentNode) {
-			this.svgElement = newElement;
-		}
-		else {
-			//if (this.svgElement.parentNode) we should change parentNode.child
-			var parent = this.svgElement.parentNode;
-			parent.removeChild(this.svgElement);
-			this.svgElement = newElement;
-			parent.appendChild(this.svgElement);
-		};
-	};
-	this.appendSVG = function(that) {
-		if (this.svgElement==null) {
-			this.updateSVG();
-		}
-		if (that instanceof SceneElement) {
-			if (that.svgElement) {
-				this.svgElement.appendChild(that.svgElement);
-			};
-		}
-		else if (that instanceof HTMLElement || that instanceof SVGElement) {
-			this.svgElement.appendChild(that);
-		};
-	};
-};
+// 	this.updateSVG = function() {
+// 		var newElement = document.createElementNS("http://www.w3.org/2000/svg", this.tagSVG);
+// 		newElement.setAttribute('id', this.identificator);
+// 		if (!this.svgElement || !this.svgElement.parentNode) {
+// 			this.svgElement = newElement;
+// 		}
+// 		else {
+// 			//if (this.svgElement.parentNode) we should change parentNode.child
+// 			var parent = this.svgElement.parentNode;
+// 			parent.removeChild(this.svgElement);
+// 			this.svgElement = newElement;
+// 			parent.appendChild(this.svgElement);
+// 		};
+// 	};
+// 	this.appendSVG = function(that) {
+// 		if (this.svgElement==null) {
+// 			this.updateSVG();
+// 		}
+// 		if (that instanceof SceneElement) {
+// 			if (that.svgElement) {
+// 				this.svgElement.appendChild(that.svgElement);
+// 			};
+// 		}
+// 		else if (that instanceof HTMLElement || that instanceof SVGElement) {
+// 			this.svgElement.appendChild(that);
+// 		};
+// 	};
+// };
 
-function Scene(div) {
-	this.div = div || null;
-	this.tagSVG="svg";
+SD.sceneMaker = function(spec) {
+	var sceneProto = SD.elementMaker();
+	sceneProto.div = null;
+	sceneProto.tagSVG="svg";
+	newScene = SD.objectCloner(sceneProto, spec);
 
-	this.elements = new GroupOfSceneElements(this);
-	this.add = function(elemento) {
-    this.elements.add(elemento);
-  }
-
-	this.updateSVG = function() {
-		if (!this.svgElement) {
-			this.svgElement = document.createElementNS("http://www.w3.org/2000/svg","svg");
-			this.svgElement.setAttribute('style', 'max-height:100%; max-width:100%;');
-			this.svgElement.setAttribute('viewBox', '' + this.range.xMin + 
-		   ' ' + (-this.range.yMax) + ' ' + this.xRange() + ' ' + this.yRange());
-		}
+	newScene.updateSVG = function() {
+		sceneProto.updateSVG.call(this);
+		this.svgElement.setAttribute('style', 'max-height:100%; max-width:100%;');
+		this.svgElement.setAttribute(
+			'viewBox', '' + this.range.xMin + 
+				' ' + (-this.range.yMax) + ' ' + this.xRange() + ' ' + this.yRange());
 		if (this.div) {
 			this.div.appendChild(this.svgElement);
-		}
-	};
-	this.plotSVG = function() {
-		this.elements.plotSVG();
-		this.updateSVG();
-		this.appendSVG(this.elements);
-	};
-  this.remove = function(element) {
-    this.elements.remove(element);
-  }
-}
-Scene.prototype = new SceneElement();
+		};
+	}
+	return newScene;
+};
 
-function GroupOfSceneElements(parentSceneElement) {
-  this._lista = [];
-	this.forEach = function(f) {
-		//this._lista.forEach(f)
-		for (var i; i<this._lista.length; i++) {
-			f(this._lista[i]);
-		}
-	};
+// function Scene(div) {
+// 	this.div = div || null;
+// 	this.tagSVG="svg";
+
+// 	this.elements = new GroupOfSceneElements(this);
+// 	this.add = function(elemento) {
+//     this.elements.add(elemento);
+//   }
+
+// 	this.updateSVG = function() {
+// 		if (!this.svgElement) {
+// 			this.svgElement = document.createElementNS("http://www.w3.org/2000/svg","svg");
+// 			this.svgElement.setAttribute('style', 'max-height:100%; max-width:100%;');
+// 			this.svgElement.setAttribute('viewBox', '' + this.range.xMin + 
+// 		   ' ' + (-this.range.yMax) + ' ' + this.xRange() + ' ' + this.yRange());
+// 		}
+// 		if (this.div) {
+// 			this.div.appendChild(this.svgElement);
+// 		}
+// 	};
+// 	this.plotSVG = function() {
+// 		this.elements.plotSVG();
+// 		this.updateSVG();
+// 		this.appendSVG(this.elements);
+// 	};
+//   this.remove = function(element) {
+//     this.elements.remove(element);
+//   }
+// }
+// //Scene.prototype = new SceneElement();
+
+// function GroupOfSceneElements(parentSceneElement) {
+//   this._lista = [];
+// 	this.forEach = function(f) {
+// 		//this._lista.forEach(f)
+// 		for (var i; i<this._lista.length; i++) {
+// 			f(this._lista[i]);
+// 		}
+// 	};
 	
-	this.identificator = SD.generateIdentificator();
-	this.parentSceneElement = parentSceneElement||null;
-  this.length = function() {
-    return this._lista.length;
-  };
-  this.add = function(element) {
-		element.parentSceneElement = this;
-    this._lista.push(element);
-  };
-	this.updateSVG = function() {
-		if (!this.svgElement) {
-			this.svgElement = document.createElementNS("http://www.w3.org/2000/svg","g");
-		}
-		if (this.parentSceneElement && this.parentSceneElement.svgElement) {
-			this.parentSceneElement.svgElement.appendChild(this.svgElement);
-		}
-		this.forEach(function(element) {
-			this.svgElement.appendChild(element.svgElement)
-		});
-	};
-	this.plotSVG = function() {
-		this.forEach(function(element) {element.plotSVG()});
-		this.updateSVG();
-	};
-  this.remove = function(elemento) {
-    elemento.remove();
-    var index = this._lista.indexOf(elemento);
-    this._lista.splice(index, 1);
-  };
-}
-GroupOfSceneElements.prototype = new SceneElement();
+// 	this.identificator = SD.generateIdentificator();
+// 	this.parentSceneElement = parentSceneElement||null;
+//   this.length = function() {
+//     return this._lista.length;
+//   };
+//   this.add = function(element) {
+// 		element.parentSceneElement = this;
+//     this._lista.push(element);
+//   };
+// 	this.updateSVG = function() {
+// 		if (!this.svgElement) {
+// 			this.svgElement = document.createElementNS("http://www.w3.org/2000/svg","g");
+// 		}
+// 		if (this.parentSceneElement && this.parentSceneElement.svgElement) {
+// 			this.parentSceneElement.svgElement.appendChild(this.svgElement);
+// 		}
+// 		this.forEach(function(element) {
+// 			this.svgElement.appendChild(element.svgElement)
+// 		});
+// 	};
+// 	this.plotSVG = function() {
+// 		this.forEach(function(element) {element.plotSVG()});
+// 		this.updateSVG();
+// 	};
+//   this.remove = function(elemento) {
+//     elemento.remove();
+//     var index = this._lista.indexOf(elemento);
+//     this._lista.splice(index, 1);
+//   };
+// }
+// //GroupOfSceneElements.prototype = new SceneElement();
 
 function Circle(x,y,r) {
 	this.identificator = SD.generateIdentificator();
@@ -225,7 +252,7 @@ function Circle(x,y,r) {
 	};
 	this.plotSVG=this.updateSVG;
 }
-Circle.prototype = new SceneElement();
+//Circle.prototype = new SceneElement();
 
 function Point(x,y) {
 	this.identificator = SD.generateIdentificator();
@@ -277,7 +304,7 @@ function FunctionGraph(f, range) {
     if(pathf) { this.svg().removeChild(pathf) }
   }
 }
-FunctionGraph.prototype = new SceneElement();
+//FunctionGraph.prototype = new SceneElement();
 
 
 
@@ -346,7 +373,7 @@ function Flecha(x1,y1,x2,y2, identificator) {
   }
 }
 
-Flecha.prototype = new SceneElement();
+//Flecha.prototype = new SceneElement();
 
 
 //compability:
