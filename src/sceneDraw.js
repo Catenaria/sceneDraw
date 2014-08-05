@@ -53,8 +53,32 @@ SD.elementMaker = function(spec) {
 
 	newElement.xRange = function() {return this.range.xMax - this.range.xMin};
   newElement.yRange = function() {return this.range.yMax - this.range.yMin};
+
+	newElement.updateSVG = function() {
+		if (!this.svgElement) {
+			this.svgElement = document.createElementNS("http://www.w3.org/2000/svg", this.tagSVG);
+		}
+		this.svgElement.setAttribute('id', this.identificator);
+		//if (this.svgElement.parentNode && this.svgElement.tagName != this.tagSVG) we should change parentNode.child
+		//	var parent = this.svgElement.parentNode;
+		//	parent.removeChild(this.svgElement);
+		//	this.svgElement = newSVGElement;
+		//	parent.appendChild(this.svgElement);
+	};
 	
-	
+	newElement.appendSVG = function(that) {
+		if (this.svgElement==null) {
+			this.updateSVG();
+		}
+		if (that instanceof SceneElement) {
+			if (that.svgElement) {
+				this.svgElement.appendChild(that.svgElement);
+			};
+		}
+		else if (that instanceof HTMLElement || that instanceof SVGElement) {
+			this.svgElement.appendChild(that);
+		};
+	};
 
 	return newElement;
 };

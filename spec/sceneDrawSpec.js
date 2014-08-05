@@ -32,7 +32,7 @@ describe("elementMaker", function() {
 	describe("elementMaker()", function() {
 		var element, element2;
 		beforeEach(function() {
-			spyOn(SD, "generateIdentificator");
+			spyOn(SD, "generateIdentificator").and.callThrough();
 			element = SD.elementMaker();
 			element2 = SD.elementMaker();
 		});
@@ -115,28 +115,27 @@ describe("elementMaker", function() {
 						element.tagSVG = "path";
 						element.updateSVG();
 					});
-					it("should be <path>", function() {
+					xit("should be <path>", function() {
 						expect(element.svgElement.tagName).toBe("path");
 					})
 				})
 			}); 
 		});
-		
-	describe("#appendSVG", function() {
-		describe("when the argument is SceneElement", function() {
-			beforeEach(function() {
-				element2 = new SceneElement();
-				element2.svgElement = document.createElementNS("http://www.w3.org/2000/svg","g");
-			});
-			describe("if #svgElement is not defined", function() {
-				it("should call updateSVG", function() {
+		describe("#appendSVG", function() {
+			describe("when the argument is SceneElement", function() {
+				beforeEach(function() {
+					element2 = new SceneElement();
+					element2.svgElement = document.createElementNS("http://www.w3.org/2000/svg","g");
+				});
+				describe("if #svgElement is not defined", function() {
+					it("should call updateSVG", function() {
 					expect(element.svgElement).toBeNull();
-					spyOn(element,'updateSVG').and.callThrough();
-					element.appendSVG(element2);
-					expect(element.updateSVG).toHaveBeenCalled();
-				})
-			});
-			describe("when #svgElement is defined", function() {
+						spyOn(element,'updateSVG').and.callThrough();
+						element.appendSVG(element2);
+						expect(element.updateSVG).toHaveBeenCalled();
+					})
+				});
+				describe("when #svgElement is defined", function() {
 				beforeEach(function() {
 					element.svgElement=document.createElementNS("http://www.w3.org/2000/svg","g");
 					element.appendSVG(element2);
