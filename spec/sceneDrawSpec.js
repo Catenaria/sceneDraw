@@ -212,7 +212,7 @@ describe("elementMaker", function() {
 });
 
 describe("sceneMaker()", function() {
-  var scene, element, numbersOfSVGtags, div;
+  var scene, scene2, element, numbersOfSVGtags, div;
   beforeEach(function() {
 		numbersOfSVGtags = document.getElementsByTagName('svg').length;
 		spyOn(SD,"sceneMaker").and.callThrough();
@@ -274,6 +274,14 @@ describe("sceneMaker()", function() {
 				});
 			});
 		})
+		describe("sceneMaker({div:div})", function() {
+			it("should have the div as parent", function() {
+				div = document.createElement("div");
+				scene2 = SD.sceneMaker({div:div})
+				scene2.updateSVG();
+				expect(scene2.svgElement.parentNode).toBe(div);
+			});
+		})
 	});
 	describe("#range", function() {
 		it("al inicion deberia tener xMin = 0", function() {
@@ -289,27 +297,32 @@ describe("sceneMaker()", function() {
   });
 });
 
-describe("new Circle", function() {
-	var circle = new Circle();
-	it("should have x = 0, y = 0 and r=1", function() {
-		expect(circle.x).toBe(0);
-		expect(circle.y).toBe(0);
-		expect(circle.r).toBe(1);
+describe("circleMaker", function() {
+	var circle, scene;
+	beforeEach(function() {
+		spyOn(SD,"elementMaker").and.callThrough();
+		circle = SD.circleMaker();
+	})
+	it("should call elementMaker", function() {
+		expect(SD.elementMaker).toHaveBeenCalled();
+	})
+	it("should have cx = 50, cy = 50 and r=50", function() {
+		expect(circle.cx).toBe(50);
+		expect(circle.cy).toBe(50);
+		expect(circle.r).toBe(50);
 	});
-	it("should be instance of SceneElement", function() {
-		expect(circle instanceof SceneElement).toBe(true);
+	it("should have tag 'circle'", function() {
+		expect(circle.tagSVG).toBe('circle');
 	});
 	describe("#plotSVG", function() {
-		var elements;
-		it("should be called by elements.plotSVG", function() {
-			elements = new GroupOfSceneElements();
-			elements.add(circle);
-			spyOn(circle, 'plotSVG');
-			elements.plotSVG();
-			expect(circle.plotSVG).toHaveBeenCalled();
-		});
 		beforeEach(function() {
-			circle.plotSVG();
+			scene=SD.sceneMaker();
+			scene.add(circle);
+			spyOn(circle, 'plotSVG');
+			scene.plotSVG();
+		});
+		it("should be called by scene.plotSVG", function() {
+			expect(circle.plotSVG).toHaveBeenCalled();
 		});
 		it("should create SVGEelement",function() {
 			expect(circle.svgElement instanceof SVGElement).toBe(true);

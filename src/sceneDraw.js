@@ -234,6 +234,23 @@ SD.sceneMaker = function(spec) {
 // }
 // //GroupOfSceneElements.prototype = new SceneElement();
 
+SD.circleMaker = function(spec) {
+	var circleProto = SD.elementMaker();
+	circleProto.tagSVG = "circle";
+	circleProto.cx = 50;
+	circleProto.cy = 50;
+	circleProto.r = 50;
+	var newCircle = SD.objectCloner(circleProto, spec);
+
+	newCircle.updateSVG = function() {
+		circleProto.updateSVG.call(this);
+		this.svgElement.setAttribute("cx", this.cx);
+		this.svgElement.setAttribute("cy", - this.cy);
+		this.svgElement.setAttribute("r", this.r);
+	}
+	return newCircle;
+}
+
 function Circle(x,y,r) {
 	this.identificator = SD.generateIdentificator();
 	this.x = x||0;

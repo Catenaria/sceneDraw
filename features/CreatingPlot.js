@@ -1,4 +1,30 @@
 describe("Feature: Create a plot, as developer, so that I can present data", function() {
+	describe("Scenario: Creating a circle", function() {
+		var div = document.getElementById("div0");
+		console.log(div);
+		var scene = SD.sceneMaker({div:div}); //crear scene
+		it("Given a scene created with 'sceneMaker({div:div})'",function() {
+			expect(scene.div).toBe(div);
+		});
+		var circle = SD.circleMaker(); //cerar graph of a function
+		scene.add(circle); 
+		it("And a circle with circleMaker() added to the scene",function() {
+			expect(scene.children.length).toBe(1);
+		});
+		scene.plotSVG();
+		it("when ploting", function() {
+			expect(circle.svgElement).not.toBeNull();
+		});
+		it("Then the plot should contain a graph of a circle", function() {
+			var circleSVG = scene.svgElement.getElementById(circle.identificator);
+			expect(circleSVG).toBe(circle.svgElement);
+		});
+		it("and the SVGElement of the scene should be fully inside the <div>.", function() {
+			expect(scene.svgElement).toBeFullyContainedIn(div);
+		})
+	});
+
+
 	describe("Scenario: Creating standard square plot of a function in rectanguled div", function() {
 		var div = document.getElementById("div1");
 		//var div = document.createElement('div');
