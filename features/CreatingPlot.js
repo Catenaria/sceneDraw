@@ -51,15 +51,14 @@ describe("Feature: Create a plot, as developer, so that I can present data", fun
 	describe("Scenario: Creating standard square plot of a function in rectanguled div", function() {
 		var div = document.getElementById("div1");
 		//var div = document.createElement('div');
-		var scene = new Scene(div); //crear scene
-		it("Given instance of Scene",function() {
-			expect(scene).toBeInstanceOf(Scene);
+		var scene = SD.sceneMaker({div:div}); //crear scene
+		it("Given a scene",function() {
+			expect(scene.div).toBe(div);
 		});
-		var functionGraph = new FunctionGraph(); //cerar graph of a function
+		var functionGraph = SD.functionGraphMaker(); //cerar graph of a function
 		scene.add(functionGraph); 
 		it("And instance of FunctionGraph added to scene",function() {
-			expect(functionGraph).toBeInstanceOf(FunctionGraph);
-			expect(scene.elements.length()).toBe(1);
+			expect(scene.children.length).toBe(1);
 		});
 		scene.plotSVG();
 		it("when ploting", function() {
@@ -76,8 +75,8 @@ describe("Feature: Create a plot, as developer, so that I can present data", fun
 
 	describe("Background: Having scene, and functionGraph created", function() {
 		describe("Scenario: Scaling <svg> to fit horizontal <div>", function() {
-			var scene = new Scene();
-			var functionGraph = new FunctionGraph();
+			var scene = SD.sceneMaker(); 
+			var functionGraph = SD.functionGraphMaker();
 			scene.add(functionGraph); 
 			var div = document.getElementById('div2');
 			scene.div = div;
@@ -90,8 +89,8 @@ describe("Feature: Create a plot, as developer, so that I can present data", fun
 			});
 		});
 		describe("Scenario: Scaling horizontal <svg> to fit squared <div>", function() {
-			var scene = new Scene();
-			var functionGraph = new FunctionGraph();
+			var scene = SD.sceneMaker(); 
+			var functionGraph = SD.functionGraphMaker();
 			scene.add(functionGraph); 
 			var div = document.getElementById('div3');
 			scene.div = div;

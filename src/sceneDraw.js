@@ -1,6 +1,6 @@
 var SD = {};
 
-var NUMBER_POINTS = 600;
+SD.NUMBER_OF_SEGMENTS_IN_FUNCTIONGRAPH = 600;
 
 SD.generateIdentificator = function() {
 	return Math.random().toString();
@@ -9,10 +9,8 @@ SD.generateIdentificator = function() {
 SD.objectCloner = function (objProto, spec) {
 	var newObject = Object.create(objProto);
 	if (spec) {
-		for (var field in objProto) {
-			if (spec[field]) {
-				newObject[field] = spec[field];
-			}
+		for (var field in spec) {
+			newObject[field] = spec[field];
 		}
 	}
 	return newObject;
@@ -31,13 +29,14 @@ SD.rangeMaker = function(spec) {
 SD.elementMaker = function(spec) {
 	var elementProto = {
 		parent: null,
+		children: [],
 		range: SD.rangeMaker(),
 		tagSVG: "g",
+		htmlClasses: ["Element"],
 		svgElement: null
 	}
 	elementProto.identificator = SD.generateIdentificator();
 	newElement = SD.objectCloner(elementProto, spec);
-	newElement.children = [];
 	newElement.add = function(element) {
 		this.children.push(element);
 		element.parent = this;
@@ -58,6 +57,9 @@ SD.elementMaker = function(spec) {
 			this.svgElement = document.createElementNS("http://www.w3.org/2000/svg", this.tagSVG);
 		}
 		this.svgElement.setAttribute('id', this.identificator);
+		for (var i=0; i < this.htmlClasses.length; i++) {
+			this.svgElement.classList.add(this.htmlClasses[i])
+		} 
 		//if (this.svgElement.parentNode && this.svgElement.tagName != this.tagSVG) we should change parentNode.child
 		//	var parent = this.svgElement.parentNode;
 		//	parent.removeChild(this.svgElement);
@@ -126,62 +128,29 @@ SD.circleMaker = function(spec) {
 
 SD.pointMaker = function(spec) {
 	var pointProto = SD.circleMaker({r:1});
-	return SD.objectCloner(pointProto, spec);
+	var newPoint=SD.objectCloner(pointProto, spec);
+	return newPoint;
 };
 
-function Point(x,y) {
-	this.identificator = SD.generateIdentificator();
-	this.x = x||0;
-	this.y = y||0;
-}
-Point.prototype = new Circle();
+SD.functionGraphMaker = function(spec) {
+	var functionGraphProto = SD.elementMaker();
+	functionGraphProto.f = function(x) {return 4*x*(1-x/100)};
+	functionGraphProto.numberOfSegments = SD.NUMBER_OF_SEGMENTS_IN_FUNCTIONGRAPH;	
+	functionGraphProto.htmlClasses.push("FunctionGraph");
+	newFunctionGraph = SD.objectCloner(functionGraphProto, spec);
 
-function FunctionGraph(f, range) {
-	this.identificator = Math.random().toString();
-	this.f = f || function(x) {return 4*x*(1-x/100)};
-	this.range = range || new Range(0,100,0,100);
-  this.fxRange = function() {return this.range.xMax - this.range.xMin;};
-	this.updateSVG = function() {
-		if (!this.svgElement) {
-			this.svgElement = document.createElementNS("http://www.w3.org/2000/svg", "path");
-			this.svgElement.classList.add("functionGraph"); 
-			this.svgElement.setAttribute("vector-effect", "non-scaling-stroke");
-		};
-		if (window.getComputedStyle(this.svgElement)['stroke']=='none') {
-			this.svgElement.setAttribute('style', "stroke:black; fill:none;");
-		};
-		this.svgElement.setAttribute('id', this.identificator);
-		
-		this.pointXY = function (x) {
-			var valorX = x;
-			var valorY = this.f(x);
-			if (valorY < this.range.yMax && valorY > this.range.yMin){ 
-				return ""+valorX+" "+ (-valorY);
+	newFunctionGraph.updateSVG = function() {
+		functionGraphProto.updateSVG.call(this);
+		for (var i=0; i<=this.numberOfSegments; i++) {	
+			var x = this.range.xMin + i*this.xRange()/this.numberOfSegments;
+			var y = this.f(x);
+			if (y <= this.range.xMax && y >= this.range.xMin) {
+				this.add(SD.pointMaker({x:x,y:y}));
 			}
 		}
-
-		var ruta = "M";
-		for (var i=0; i<600; i++) {	
-			var x = this.range.xMin + i*this.fxRange()/NUMBER_POINTS;
-			var xy = this.pointXY(x);
-			if (xy) {
-				if (ruta!="M") {ruta += " L";}
-				ruta += xy;
-			}
-		}
-		this.svgElement.setAttribute('d', ruta);
-	};
-	this.plotSVG = function() {
-		this.updateSVG();
-	};
-	this.remove = function() {
-    var pathf = this.svg().getElementById(this.identificator);
-    if(pathf) { this.svg().removeChild(pathf) }
-  }
+	}
+	return newFunctionGraph;
 }
-//FunctionGraph.prototype = new SceneElement();
-
-
 
 /////////////////////////////////////////////
 

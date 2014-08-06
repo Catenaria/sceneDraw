@@ -9,6 +9,19 @@ describe("generateIdentificator", function() {
 	it("should be good", function() {
 		expect(SD.generateIdentificator()).toBeGoodId();
 	});
+	it("if one generates two, they should be different", function() {
+		var id1 = SD.generateIdentificator();
+		var id2 = SD.generateIdentificator();
+		expect(id1).not.toBe(id2);
+	});
+	it("and if one generates 10000, as well", function() {
+		var ids=[];
+		for (var i=0;i<10000;i++) {
+			id = SD.generateIdentificator();
+			ids.push(id);
+		}
+		expect(ids).toHaveDistinctValues();
+	});
 });
 
 describe("rangeMaker", function() {
@@ -92,10 +105,16 @@ describe("elementMaker", function() {
 		});
 
 		describe("#tagSVG", function() {
-			it("should be", function() {
+			it("should be 'g'", function() {
 				expect(element.tagSVG).toBe("g");
 			})
 		});
+		describe("#htmlClasses", function() {
+			it("should contain 'Element'", function() {
+				expect(element.htmlClasses).toContain("Element");
+			})
+		});
+
 		describe("#svgElement", function() {
 			it("should be null", function() {
 				expect(element.svgElement).toBeNull();
@@ -110,6 +129,9 @@ describe("elementMaker", function() {
 				it("shoud have id = #identificator", function() {
 					expect(element.svgElement.id).toBe(element.identificator);
 				});
+				it("should have 'Element' class", function() {
+					expect(element.svgElement).toContainClass('Element');
+				})
 				describe("after changing tagSVG to 'path' and updating again", function() {
 					beforeEach(function() {
 						element.tagSVG = "path";
@@ -318,110 +340,97 @@ describe("circleMaker", function() {
 		beforeEach(function() {
 			scene=SD.sceneMaker();
 			scene.add(circle);
-			spyOn(circle, 'plotSVG');
+			spyOn(circle, 'plotSVG').and.callThrough();
 			scene.plotSVG();
 		});
 		it("should be called by scene.plotSVG", function() {
 			expect(circle.plotSVG).toHaveBeenCalled();
 		});
-		it("should create SVGEelement",function() {
+		it("should create SVGElement",function() {
 			expect(circle.svgElement instanceof SVGElement).toBe(true);
 		});
-		it("should create a circle of radius 1", function() {
+		it("should create a circle of radius 50", function() {
 			expect(circle.svgElement.tagName).toBe("circle");
+			expect(circle.svgElement.getAttributeNode("r").value).toEqual("50");
 		});
-
 	});
 });
 
 
-describe("new Point()", function() {
-	var point = new Point();
-	it("should have x = 0 and y = 0", function() {
-		expect(point.x).toBe(0);
-		expect(point.y).toBe(0);
+describe("pointMaker", function() {
+	var point = SD.pointMaker();
+	it("should have x = 50 and y = 50", function() {
+		expect(point.x).toBe(50);
+		expect(point.y).toBe(50);
 	});
-	it("should be instance of SceneElement", function() {
-		expect(point instanceof SceneElement).toBe(true);
+	describe("#plotSVG", function() {
+		it("should create a circle of radius 50", function() {
+			point.plotSVG();
+			expect(point.svgElement.tagName).toBe("circle");
+			expect(point.svgElement.getAttributeNode("r").value).toEqual("1");
+		});
 	});
-	it("should be instance of Circle", function() {
-		expect(point instanceof Circle).toBe(true);
-	});
-	
-	
 });
   
-describe("new FunctionGraph()", function() {
-  var functionGraph;
+describe("functionGraphMaker()", function() {
+  var functionGraph, functionGraph2;
   beforeEach(function() {
-    functionGraph = new FunctionGraph();
+    functionGraph = SD.functionGraphMaker();
   });
-
 	describe("#range", function() {
 		it("should be null", function() {
 			expect(functionGraph.range).toBeDefined();
 		})
 	});
 
-	describe("#parentSceneElement", function() {
+	describe("#parent", function() {
 		it("should be null", function() {
-			expect(functionGraph.parentSceneElement).toBeNull();
+			expect(functionGraph.parent).toBeNull();
 		});
 	});
 
 	describe("#svgElement", function() {
-		describe("after calling #updateSVG", function() {
-			describe("without parentSceneNode", function() {
+		describe("after calling #plotSVG", function() {
+			describe("without parent", function() {
+				var point;
 				beforeEach(function() {
-					functionGraph.updateSVG();
+					functionGraph.plotSVG();
 				});
-				it("should be a 'path'", function() {
-					expect(functionGraph.svgElement.nodeName).toBe("path");
+				it("should be a 'g'", function() {
+					expect(functionGraph.svgElement.nodeName).toBe("g");
 				});
-				it("should have a 'functionGraph' class", function() {
-					expect(functionGraph.svgElement).toContainClass("functionGraph");
+				it("should create ", function(){
+					point = SD.pointMaker();
+					expect(functionGraph.svgElement.getElementsByTagName(point.tagSVG).length).toBe(SD.NUMBER_OF_SEGMENTS_IN_FUNCTIONGRAPH+1);
+				})
+				it("should have a 'FunctionGraph' class", function() {
+					expect(functionGraph.svgElement).toContainClass("FunctionGraph");
 				});
 			});
-			describe("with parentSceneNode", function() {
-				var elements = {
+			describe("with not null parent", function() {
+				var svgElement = {
 					svgElement: document.createElementNS("http://www.w3.org/2000/svg","g")
 				};
 				beforeEach(function() {
-					functionGraph.parentSceneElement = elements;
+					functionGraph.parent = svgElement;
 					functionGraph.updateSVG();
 				});
 				it("should have a SVGElement as its value", function() {
 					expect(functionGraph.svgElement instanceof SVGElement).toBe(true);
 				});
-				it("should have elements#svgElement as parent", function() {
-					expect(functionGraph.svgElement.parentNode).toBe(elements.svgElement);
+				xit("should have elements#svgElement as parent", function() {
+					expect(functionGraph.svgElement.parentNode).toBe(svgElement.svgElement);
 				});
 			});
 		});
 	});
 
   describe("#identificator", function() {
-    it("deberia tener identificator definido", function() {
-			expect(functionGraph.identificator).toBeDefined();
+    it("should be generate by generateIdentificator", function() {
+			spyOn(SD,"generateIdentificator");
+			functionGraph = SD.functionGraphMaker();
+			expect(SD.generateIdentificator).toHaveBeenCalled();
     });
-    it("deberia ser str con un numero entre 0 y 1", function () {
-			expect(parseFloat(functionGraph.identificator)).toBeBetween(0, 1);
-    });
-		describe("cuando hay mas que uno", function() {
-			it("si se crea dos no deberian repetirse", function() {
-				var f1 = new FunctionGraph();
-				var f2 = new FunctionGraph();
-				expect(f1.identificator).not.toBe(f2.identificator);
-			});
-			it("si se crea 10000 no deberian repetirse", function() {
-				var identificatores=[];
-				for (var i=0;i<10000;i++) {
-					element = new FunctionGraph();
-					identificatores.push(element.identificator);
-				}
-				expect(identificatores).toHaveDistinctValues();
-			});
-		});
   });
 
 	describe("#plotSVG", function() {
