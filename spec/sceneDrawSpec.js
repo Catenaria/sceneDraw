@@ -306,9 +306,9 @@ describe("circleMaker", function() {
 	it("should call elementMaker", function() {
 		expect(SD.elementMaker).toHaveBeenCalled();
 	})
-	it("should have cx = 50, cy = 50 and r=50", function() {
-		expect(circle.cx).toBe(50);
-		expect(circle.cy).toBe(50);
+	it("should have x = 50, y = 50 and r=50", function() {
+		expect(circle.x).toBe(50);
+		expect(circle.y).toBe(50);
 		expect(circle.r).toBe(50);
 	});
 	it("should have tag 'circle'", function() {
