@@ -1,4 +1,6 @@
 describe("Feature: Create a plot, as developer, so that I can present data", function() {
+	var range2 = SD.rangeMaker({yMax: 50});
+	var range3 = SD.rangeMaker({xMax: 50});
 	describe("Scenario: Creating a circle", function() {
 		var div = document.getElementById("div0");
 		var scene = SD.sceneMaker({div:div}); //crear scene
@@ -38,13 +40,20 @@ describe("Feature: Create a plot, as developer, so that I can present data", fun
 			expect(scene.children.length).toBe(9);
 		});
 		scene.plotSVG();
-		// xit("when ploting", function() {
-		// 	expect(circle.svgElement).not.toBeNull();
-		// });
-		// xit("Then the plot should contain a graph of a circle", function() {
-		// 	var circleSVG = scene.svgElement.getElementById(circle.identificator);
-		// 	expect(circleSVG).toBe(circle.svgElement);
-		// });
+	});
+
+	describe("Scenario: Ploating a line", function() {
+		var div = document.getElementById("div06");
+		var scene = SD.sceneMaker({div:div}); //create scene
+		it("Given a scene",function() {
+		 	expect(scene.div).toBe(div);
+		});
+		var line = SD.lineMaker();
+		scene.add(line);
+		it("And a line= lineMaker() added to the scene",function() {
+			expect(scene.children.length).toBe(1);
+		});
+		scene.plotSVG();
 	});
 
 
@@ -77,47 +86,49 @@ describe("Feature: Create a plot, as developer, so that I can present data", fun
 		describe("Scenario: Scaling <svg> to fit horizontal <div>", function() {
 			var scene = SD.sceneMaker(); 
 			var functionGraph = SD.functionGraphMaker();
+			functionGraph.color = "red";
 			scene.add(functionGraph); 
 			var div = document.getElementById('div2');
 			scene.div = div;
 			scene.plotSVG();
-			xit("The SVGElement of the scene be descendant of 'div'", function() {
+			it("The SVGElement of the scene be descendant of 'div'", function() {
 				expect(scene.svgElement).toBeDescendantOf(div);
 			});
-			xit("and should be fully contained inside the <div>.", function() {
+			it("and should be fully contained inside the <div>.", function() {
 				expect(scene.svgElement).toBeFullyContainedIn(div);
 			});
 		});
+
 		describe("Scenario: Scaling horizontal <svg> to fit squared <div>", function() {
 			var scene = SD.sceneMaker(); 
 			var functionGraph = SD.functionGraphMaker();
 			scene.add(functionGraph); 
 			var div = document.getElementById('div3');
 			scene.div = div;
-			var range = new Range(0,100,0,50);
-			scene.range =range;
-			functionGraph.range = range;
+			scene.range =range2;
+			functionGraph.range = range2;
 			scene.plotSVG();
-			xit("The SVGElement of the scene be descendant of 'div'", function() {
+			it("The SVGElement of the scene be descendant of 'div'", function() {
 				expect(scene.svgElement).toBeDescendantOf(div);
 			});
-			xit("and should be fully contained inside the <div>.", function() {
+			it("and should be fully contained inside the <div>.", function() {
 				expect(scene.svgElement).toBeFullyContainedIn(div);
 			});
 		});
 		describe("Scaling vertical <svg> to fit squared <div>", function() {
 			var div = document.getElementById('div4');
-			var scene = new Scene(div);
-			var range = new Range(0,50,0,100);
-			scene.range =range;
-			var functionGraph = new FunctionGraph();
-			functionGraph.range = range;
+			var scene = SD.sceneMaker({div:div}); 
+			var functionGraph = SD.functionGraphMaker();
+			scene.range =range3;
+			console.log(range3)
+			var functionGraph = SD.functionGraphMaker()
+			functionGraph.range = range3;
 			scene.add(functionGraph); 
 			scene.plotSVG();
-			xit("The SVGElement of the scene be descendant of 'div'", function() {
+			it("The SVGElement of the scene be descendant of 'div'", function() {
 				expect(scene.svgElement).toBeDescendantOf(div);
 			});
-			xit("and should be fully contained inside the <div>.", function() {
+			it("and should be fully contained inside the <div>.", function() {
 				expect(scene.svgElement).toBeFullyContainedIn(div);
 			});
 		});
@@ -126,17 +137,16 @@ describe("Feature: Create a plot, as developer, so that I can present data", fun
 	describe("Scenario: Creating a Plot with two points and a line between them", function() {
 		var div = document.getElementById('div5');
 		var scene, point1, point2, line;
-		xit("Given a new Scene", function() {
-			scene = new Scene();
-			scene.div = div;
-			//scene.plotSVG();
-			//expect(expect(scene.svgElement).toBeFullyContainedIn(div));
+		var scene = SD.sceneMaker({div:div});
+		it("Given a new Scene", function() {
+			scene.plotSVG();
+			expect(expect(scene.svgElement).toBeFullyContainedIn(div));
 		});
-		xit("and creating two points and adding them to the scene", function() {
-			point1 = new Point(10,10);
-			point2 = new Point(90,60);
+		it("and creating two points and adding them to the scene", function() {
+			point1 = SD.pointMaker({x:10,y:10});
+			point2 = SD.pointMaker({x:90,y:60});
 			scene.add(point1);
-			expect(point1.parentSceneElement).toBe(scene.elements);
+			expect(point1.parent).toBe(scene);
 			scene.add(point2);
 			scene.plotSVG();
 			expect(expect(point1.svgElement).toBeFullyContainedIn(scene.svgElement));

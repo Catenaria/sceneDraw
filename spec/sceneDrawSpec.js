@@ -91,7 +91,17 @@ describe("elementMaker", function() {
 				});
 			});
 		});
-
+		describe("#color", function() {
+			it("should be null", function() {
+				expect(element.color).toBeNull();
+			});
+			it("changing to red", function() {
+				element3 = SD.elementMaker({color:"red"});
+				element3.updateSVG();
+				console.log(element3.svgElement);
+				expect(element3.svgElement.getAttribute("stroke")).toBe("red");
+			})
+		})
 		describe("#range", function() {
 			it("it should be equal to "+JSON.stringify(rangeProto), function() {
 				expect(element.range).toBeExtensionOf(rangeProto);
@@ -103,10 +113,25 @@ describe("elementMaker", function() {
 				expect(element.yRange()).toBe(100);
 			});
 		});
+		
 
-		describe("#tagSVG", function() {
+		describe("#svgTag", function() {
 			it("should be 'g'", function() {
-				expect(element.tagSVG).toBe("g");
+				expect(element.svgTag).toBe("g");
+			})
+		});
+		describe("#svgAttributes", function() {
+			it("should be empty", function() {
+				expect(element.svgAttributes).toEqual({});
+			});
+			describe("changing stroke to red", function() {
+				describe("#svgElement after updatingSVG", function() {
+					it("should have attribute 'stroke:red'", function() {
+						element.svgAttributes["stroke"]="red";
+						element.updateSVG();
+						expect(element.svgElement.getAttribute("stroke")).toBe("red");
+					})
+				})
 			})
 		});
 		describe("#htmlClasses", function() {
@@ -114,6 +139,7 @@ describe("elementMaker", function() {
 				expect(element.htmlClasses).toContain("Element");
 			})
 		});
+
 
 		describe("#svgElement", function() {
 			it("should be null", function() {
@@ -132,9 +158,9 @@ describe("elementMaker", function() {
 				it("should have 'Element' class", function() {
 					expect(element.svgElement).toContainClass('Element');
 				})
-				describe("after changing tagSVG to 'path' and updating again", function() {
+				describe("after changing svgTag to 'path' and updating again", function() {
 					beforeEach(function() {
-						element.tagSVG = "path";
+						element.svgTag = "path";
 						element.updateSVG();
 					});
 					xit("should be <path>", function() {
@@ -221,7 +247,7 @@ describe("elementMaker", function() {
 					element2.svgElement = document.createElementNS("http://www.w3.org/2000/svg","g");
 					element.appendSVG(element2);
 					
-					element2.tagSVG = 'path';
+					element2.svgTag = 'path';
 					element2.updateSVG();
 					
 					expect(element2.svgElement.tagName).toBe("path");
@@ -247,11 +273,19 @@ describe("sceneMaker()", function() {
 		expect(document.getElementsByTagName('svg').length).toBe(numbersOfSVGtags);
 	});
 
-	describe("#tagSVG", function() {
+	describe("#svgTag", function() {
 		it("should be 'svg'", function () {
-			expect(scene.tagSVG).toBe("svg");
+			expect(scene.svgTag).toBe("svg");
 		})
 	})
+	describe("#svgAttributes", function() {
+		it("should have 'viewBox' set", function() {
+			expect(scene.svgAttributes['viewBox']).toBe(
+				''+scene.range.xMin+' '+(-scene.range.yMax)+' '+scene.xRange()+' '+scene.yRange());
+		})
+	})
+
+
 	describe("#svgElement", function() {
 		describe("after calling #updateSVG()",function() {
 			beforeEach(function () {
@@ -334,7 +368,7 @@ describe("circleMaker", function() {
 		expect(circle.r).toBe(50);
 	});
 	it("should have tag 'circle'", function() {
-		expect(circle.tagSVG).toBe('circle');
+		expect(circle.svgTag).toBe('circle');
 	});
 	describe("#plotSVG", function() {
 		beforeEach(function() {
@@ -356,6 +390,15 @@ describe("circleMaker", function() {
 	});
 });
 
+describe("lineMaker", function() {
+	var line = SD.lineMaker(); 
+	it("should have "+SD.LINE_SPEC, function() {
+		var spec = SD.LINE_SPEC;
+		for (var key in spec) {
+			expect(line[key]).toBe(spec[key])
+		}
+	})
+})
 
 describe("pointMaker", function() {
 	var point = SD.pointMaker();
@@ -401,7 +444,7 @@ describe("functionGraphMaker()", function() {
 				});
 				it("should create ", function(){
 					point = SD.pointMaker();
-					expect(functionGraph.svgElement.getElementsByTagName(point.tagSVG).length).toBe(SD.NUMBER_OF_SEGMENTS_IN_FUNCTIONGRAPH+1);
+					expect(functionGraph.svgElement.getElementsByTagName(point.svgTag).length).toBe(SD.NUMBER_OF_SEGMENTS_IN_FUNCTIONGRAPH+1);
 				})
 				it("should have a 'FunctionGraph' class", function() {
 					expect(functionGraph.svgElement).toContainClass("FunctionGraph");

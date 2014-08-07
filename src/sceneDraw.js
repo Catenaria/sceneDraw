@@ -1,6 +1,8 @@
 var SD = {};
 
 SD.NUMBER_OF_SEGMENTS_IN_FUNCTIONGRAPH = 600;
+SD.LINE_SPEC = {svgTag:"line", x1: 10, y1: 20, x2: 80, y2: 90}
+
 
 SD.generateIdentificator = function() {
 	return Math.random().toString();
@@ -31,9 +33,11 @@ SD.elementMaker = function(spec) {
 		parent: null,
 		children: [],
 		range: SD.rangeMaker(),
-		tagSVG: "g",
-		htmlClasses: ["Element"],
-		svgElement: null
+		color:null,
+		svgElement: null,
+		svgTag: "g",
+		svgAttributes: {},
+		htmlClasses: ["Element"]
 	}
 	elementProto.identificator = SD.generateIdentificator();
 	newElement = SD.objectCloner(elementProto, spec);
@@ -54,13 +58,21 @@ SD.elementMaker = function(spec) {
 
 	newElement.updateSVG = function() {
 		if (!this.svgElement) {
-			this.svgElement = document.createElementNS("http://www.w3.org/2000/svg", this.tagSVG);
+			this.svgElement = document.createElementNS("http://www.w3.org/2000/svg", this.svgTag);
 		}
 		this.svgElement.setAttribute('id', this.identificator);
 		for (var i=0; i < this.htmlClasses.length; i++) {
 			this.svgElement.classList.add(this.htmlClasses[i])
 		} 
-		//if (this.svgElement.parentNode && this.svgElement.tagName != this.tagSVG) we should change parentNode.child
+		for (var attr in this.svgAttributes) {
+			this.svgElement.setAttribute(attr, this.svgAttributes[attr]);
+		}
+		if (this.color) {
+			console.log("dupa")
+			this.svgElement.setAttribute("stroke",this.color);
+		}
+		
+		//if (this.svgElement.parentNode && this.svgElement.tagName != this.svgTag) we should change parentNode.child
 		//	var parent = this.svgElement.parentNode;
 		//	parent.removeChild(this.svgElement);
 		//	this.svgElement = newSVGElement;
@@ -93,15 +105,15 @@ SD.elementMaker = function(spec) {
 SD.sceneMaker = function(spec) {
 	var sceneProto = SD.elementMaker();
 	sceneProto.div = null;
-	sceneProto.tagSVG="svg";
+	sceneProto.svgTag="svg";
+	var viewBox = ''+sceneProto.range.xMin+' '+(-sceneProto.range.yMax)+' ' + sceneProto.xRange() + ' ' + sceneProto.yRange(); 
+	sceneProto.svgAttributes['viewBox']=viewBox;
+	sceneProto.svgAttributes['style']='max-height:100%; max-width:100%;';
+
 	newScene = SD.objectCloner(sceneProto, spec);
 
 	newScene.updateSVG = function() {
 		sceneProto.updateSVG.call(this);
-		this.svgElement.setAttribute('style', 'max-height:100%; max-width:100%;');
-		this.svgElement.setAttribute(
-			'viewBox', '' + this.range.xMin + 
-				' ' + (-this.range.yMax) + ' ' + this.xRange() + ' ' + this.yRange());
 		if (this.div) {
 			this.div.appendChild(this.svgElement);
 		};
@@ -111,7 +123,7 @@ SD.sceneMaker = function(spec) {
 
 SD.circleMaker = function(spec) {
 	var circleProto = SD.elementMaker();
-	circleProto.tagSVG = "circle";
+	circleProto.svgTag = "circle";
 	circleProto.x = 50;
 	circleProto.y = 50;
 	circleProto.r = 50;
@@ -126,9 +138,27 @@ SD.circleMaker = function(spec) {
 	return newCircle;
 }
 
+SD.lineMaker = function(spec) {
+	var lineProto = SD.elementMaker(SD.LINE_SPEC);
+	var newLine = SD.objectCloner(lineProto, spec);
+	newLine.updateSVG = function() {
+		lineProto.updateSVG.call(this);
+		this.svgElement.setAttribute("x1", this.x1);
+		this.svgElement.setAttribute("y1", -this.y1);
+		this.svgElement.setAttribute("x2", this.x2);
+		this.svgElement.setAttribute("y2", -this.y2);
+		//this.svgElement.setAttribute("style", "stroke:rgb(255,0,0)");
+	}
+	return newLine;
+}
+
 SD.pointMaker = function(spec) {
 	var pointProto = SD.circleMaker({r:1});
 	var newPoint=SD.objectCloner(pointProto, spec);
+	newPoint.updateSVG = function() {
+		pointProto.updateSVG.call(this);
+		this.svgElement.setAttribute("vector-effect", "non-scaling-stroke");
+	}
 	return newPoint;
 };
 
@@ -137,15 +167,23 @@ SD.functionGraphMaker = function(spec) {
 	functionGraphProto.f = function(x) {return 4*x*(1-x/100)};
 	functionGraphProto.numberOfSegments = SD.NUMBER_OF_SEGMENTS_IN_FUNCTIONGRAPH;	
 	functionGraphProto.htmlClasses.push("FunctionGraph");
+	functionGraphProto.color = null;
 	newFunctionGraph = SD.objectCloner(functionGraphProto, spec);
 
 	newFunctionGraph.updateSVG = function() {
 		functionGraphProto.updateSVG.call(this);
+		//this.svgElement.setAttribute("vector-effect", "non-scaling-stroke");
 		for (var i=0; i<=this.numberOfSegments; i++) {	
 			var x = this.range.xMin + i*this.xRange()/this.numberOfSegments;
 			var y = this.f(x);
-			if (y <= this.range.xMax && y >= this.range.xMin) {
-				this.add(SD.pointMaker({x:x,y:y}));
+			if (y <= this.range.yMax && y >= this.range.yMin) {
+				var point = SD.pointMaker({x:x,y:y});
+				if (this.color) {
+					console.log(this.color);
+					point.color = this.color;
+				}
+				
+				this.add(point);
 			}
 		}
 	}
@@ -219,11 +257,3 @@ function Flecha(x1,y1,x2,y2, identificator) {
 
 //Flecha.prototype = new SceneElement();
 
-
-//compability:
-var Range = function(xMin, xMax, yMin, yMax) {
-  this.xMin = xMin;
-  this.xMax = xMax;
-  this.yMin = yMin;
-  this.yMax = yMax;
-}
