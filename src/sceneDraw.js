@@ -104,8 +104,6 @@ SD.sceneMaker = function(spec) {
 	var sceneProto = SD.elementMaker();
 	sceneProto.div = null;
 	sceneProto.svgTag="svg";
-	var viewBox = ''+sceneProto.range.xMin+' '+(-sceneProto.range.yMax)+' ' + sceneProto.xRange() + ' ' + sceneProto.yRange(); 
-	sceneProto.svgAttributes['viewBox']=viewBox;
 	sceneProto.svgAttributes['style']='max-height:100%; max-width:100%;';
 
 	newScene = SD.objectCloner(sceneProto, spec);
@@ -115,6 +113,8 @@ SD.sceneMaker = function(spec) {
 		if (this.div) {
 			this.div.appendChild(this.svgElement);
 		};
+		var viewBox = ''+this.range.xMin+' '+(-this.range.yMax)+' ' +this.xRange() + ' ' +this.yRange(); 
+		this.svgElement.setAttribute("viewBox", viewBox);
 	}
 	return newScene;
 };
@@ -139,13 +139,13 @@ SD.circleMaker = function(spec) {
 SD.lineMaker = function(spec) {
 	var lineProto = SD.elementMaker(SD.LINE_SPEC);
 	var newLine = SD.objectCloner(lineProto, spec);
+	newLine.color = "black";
 	newLine.updateSVG = function() {
 		lineProto.updateSVG.call(this);
 		this.svgElement.setAttribute("x1", this.x1);
 		this.svgElement.setAttribute("y1", -this.y1);
 		this.svgElement.setAttribute("x2", this.x2);
 		this.svgElement.setAttribute("y2", -this.y2);
-		//this.svgElement.setAttribute("style", "stroke:rgb(255,0,0)");
 	}
 	return newLine;
 }

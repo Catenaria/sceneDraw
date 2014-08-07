@@ -9,7 +9,7 @@ describe("Feature: Create a plot, as developer, so that I can present data", fun
 		});
 		var circle = SD.circleMaker(); //cerar graph of a function
 		scene.add(circle); 
-		it("And a circle with circleMaker() added to the scene",function() {
+		it("And a circle with circleMaker() added to the scene with scene.add(circle)",function() {
 			expect(scene.children.length).toBe(1);
 		});
 		scene.plotSVG();
@@ -19,6 +19,7 @@ describe("Feature: Create a plot, as developer, so that I can present data", fun
 		it("Then the plot should contain a graph of a circle", function() {
 			var circleSVG = scene.svgElement.getElementById(circle.identificator);
 			expect(circleSVG).toBe(circle.svgElement);
+			expect(circleSVG.tagName).toBe("circle")
 		});
 		it("and the SVGElement of the scene should be fully inside the <div>.", function() {
 			expect(scene.svgElement).toBeFullyContainedIn(div);
@@ -120,7 +121,6 @@ describe("Feature: Create a plot, as developer, so that I can present data", fun
 			var scene = SD.sceneMaker({div:div}); 
 			var functionGraph = SD.functionGraphMaker();
 			scene.range =range3;
-			console.log(range3)
 			var functionGraph = SD.functionGraphMaker()
 			functionGraph.range = range3;
 			scene.add(functionGraph); 
