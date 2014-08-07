@@ -3,7 +3,6 @@ var SD = {};
 SD.NUMBER_OF_SEGMENTS_IN_FUNCTIONGRAPH = 600;
 SD.LINE_SPEC = {svgTag:"line", x1: 10, y1: 20, x2: 80, y2: 90}
 
-
 SD.generateIdentificator = function() {
 	return Math.random().toString();
 };
@@ -68,7 +67,6 @@ SD.elementMaker = function(spec) {
 			this.svgElement.setAttribute(attr, this.svgAttributes[attr]);
 		}
 		if (this.color) {
-			console.log("dupa")
 			this.svgElement.setAttribute("stroke",this.color);
 		}
 		
@@ -179,7 +177,6 @@ SD.functionGraphMaker = function(spec) {
 			if (y <= this.range.yMax && y >= this.range.yMin) {
 				var point = SD.pointMaker({x:x,y:y});
 				if (this.color) {
-					console.log(this.color);
 					point.color = this.color;
 				}
 				
