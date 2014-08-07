@@ -121,7 +121,7 @@ describe("Feature: Create a plot, as developer, so that I can present data", fun
 			var scene = SD.sceneMaker({div:div}); 
 			var functionGraph = SD.functionGraphMaker();
 			scene.range =range3;
-			var functionGraph = SD.functionGraphMaker()
+			var functionGraph = SD.functionGraphMaker({style:".", color:"blue"})
 			functionGraph.range = range3;
 			scene.add(functionGraph); 
 			scene.plotSVG();

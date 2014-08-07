@@ -279,7 +279,7 @@ describe("sceneMaker()", function() {
 		})
 	})
 	describe("#svgAttributes", function() {
-		it("should have 'viewBox' set", function() {
+		xit("should have 'viewBox' set", function() {
 			expect(scene.svgAttributes['viewBox']).toBe(
 				''+scene.range.xMin+' '+(-scene.range.yMax)+' '+scene.xRange()+' '+scene.yRange());
 		})
@@ -432,6 +432,12 @@ describe("functionGraphMaker()", function() {
 		});
 	});
 
+	describe("#style", function() {
+		it("should be '-'", function() {
+			expect(functionGraph.style).toBe("-");
+		}) 
+	})
+
 	describe("#svgElement", function() {
 		describe("after calling #plotSVG", function() {
 			describe("without parent", function() {
@@ -442,9 +448,11 @@ describe("functionGraphMaker()", function() {
 				it("should be a 'g'", function() {
 					expect(functionGraph.svgElement.nodeName).toBe("g");
 				});
-				it("should create ", function(){
+				it("should create "+SD.NUMBER_OF_SEGMENTS_IN_FUNCTIONGRAPH+" segments", function(){
 					point = SD.pointMaker();
-					expect(functionGraph.svgElement.getElementsByTagName(point.svgTag).length).toBe(SD.NUMBER_OF_SEGMENTS_IN_FUNCTIONGRAPH+1);
+					var segs = functionGraph.svgElement.getElementsByTagName(point.svgTag);
+					expect(segs.length).toBe(SD.NUMBER_OF_SEGMENTS_IN_FUNCTIONGRAPH);
+					expect(segs[0].tagName).toBe("line");
 				})
 				it("should have a 'FunctionGraph' class", function() {
 					expect(functionGraph.svgElement).toContainClass("FunctionGraph");

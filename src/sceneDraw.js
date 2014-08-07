@@ -1,7 +1,17 @@
 var SD = {};
 
-SD.NUMBER_OF_SEGMENTS_IN_FUNCTIONGRAPH = 600;
+
 SD.LINE_SPEC = {svgTag:"line", x1: 10, y1: 20, x2: 80, y2: 90}
+
+SD.NUMBER_OF_SEGMENTS_IN_FUNCTIONGRAPH = 600;
+SD.FUNCTION_GRAPH_SPEC = {
+	f: function(x) {
+		return 4*x*(1-x/100)
+	},
+	numberOfSegments: SD.NUMBER_OF_SEGMENTS_IN_FUNCTIONGRAPH,
+	color: null,
+	style: "-"
+}
 
 SD.generateIdentificator = function() {
 	return Math.random().toString();
@@ -161,27 +171,39 @@ SD.pointMaker = function(spec) {
 };
 
 SD.functionGraphMaker = function(spec) {
-	var functionGraphProto = SD.elementMaker();
-	functionGraphProto.f = function(x) {return 4*x*(1-x/100)};
-	functionGraphProto.numberOfSegments = SD.NUMBER_OF_SEGMENTS_IN_FUNCTIONGRAPH;	
+	var functionGraphProto = SD.elementMaker(SD.FUNCTION_GRAPH_SPEC);
 	functionGraphProto.htmlClasses.push("FunctionGraph");
-	functionGraphProto.color = null;
 	newFunctionGraph = SD.objectCloner(functionGraphProto, spec);
 
 	newFunctionGraph.updateSVG = function() {
 		functionGraphProto.updateSVG.call(this);
-		//this.svgElement.setAttribute("vector-effect", "non-scaling-stroke");
+		var x1, x2, y1, y2;
+		x1 = null;
 		for (var i=0; i<=this.numberOfSegments; i++) {	
-			var x = this.range.xMin + i*this.xRange()/this.numberOfSegments;
-			var y = this.f(x);
-			if (y <= this.range.yMax && y >= this.range.yMin) {
-				var point = SD.pointMaker({x:x,y:y});
-				if (this.color) {
-					point.color = this.color;
+			x2 = this.range.xMin + i*this.xRange()/this.numberOfSegments;
+			y2 = this.f(x2);
+			if (y2 <= this.range.yMax && y2 >= this.range.yMin) {
+				if (this.style == ".") {
+					var point = SD.pointMaker({x:x2,y:y2});
+					if (this.color) {
+						point.color = this.color;
+					}
+					this.add(point);
 				}
-				
-				this.add(point);
+				else if (this.style == "-") {
+					if (x1) {
+						var line = SD.lineMaker({x1:x1,y1:y1,x2:x2,y2:y2});
+						console.log(line)
+						if (this.color) {
+							line.color = this.color;
+						}
+						this.add(line);
+					}
+					x1=x2;
+					y1=y2;
+				}
 			}
+			else x1 = null;
 		}
 	}
 	return newFunctionGraph;
