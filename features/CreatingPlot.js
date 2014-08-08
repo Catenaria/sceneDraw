@@ -154,4 +154,44 @@ describe("Feature: Create a plot, as developer, so that I can present data", fun
 		xit("and creating line beetwen them", function() {});
 		xit("then we should see a plot with two points and a line", function() {});
 	});
+
+	describe("Scenario: Creating a moving circle", function() {
+		var div = document.getElementById("div10");
+		var scene = SD.sceneMaker({div:div}); //crear scene
+		it("Given a scene created with 'sceneMaker({div:div})'",function() {
+			expect(scene.div).toBe(div);
+		});
+		var circle = SD.circleMaker({x:10,y:10,r:10}); //cerar graph of a function
+		scene.add(circle); 
+		it("And a circle with circleMaker() added to the scene with scene.add(circle)",function() {
+			expect(scene.children.length).toBe(1);
+		});
+		
+		it("aaa", function() {
+			scene.plotSVG();
+			circle.x=50;
+			circle.y=50;
+			scene.plotSVG(); 
+		})
+	});
+
+	describe("Scenario: Creating a moving function", function() {
+		var div = document.getElementById("div11");
+		var scene = SD.sceneMaker({div:div}); //crear scene
+		it("Given a scene created with 'sceneMaker({div:div})'",function() {
+			expect(scene.div).toBe(div);
+		});
+		var functionGraph = SD.functionGraphMaker(); //cerar graph of a function
+		scene.add(functionGraph); 
+		it("And a circle with circleMaker() added to the scene with scene.add(circle)",function() {
+			expect(scene.children.length).toBe(1);
+		});
+		
+		it("aaa", function() {
+			scene.plotSVG();
+			functionGraph.f = function(x) {return 2*x*(1-x/100)} 
+			scene.plotSVG(); 
+		})
+	});
+
 });

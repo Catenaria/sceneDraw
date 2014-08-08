@@ -205,7 +205,7 @@ SD.functionGraphMaker = function(spec) {
 					this.add(point);
 				}
 				else if (this.style == "-") {
-					if (x1) {
+					if (x1 != null) {
 						var line = SD.lineMaker({x1:x1,y1:y1,x2:x2,y2:y2});
 						if (this.color) {
 							line.color = this.color;
