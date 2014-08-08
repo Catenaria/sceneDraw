@@ -49,21 +49,33 @@ SD.elementMaker = function(spec) {
 		htmlClasses: ["Element"]
 	}
 	elementProto.identificator = SD.generateIdentificator();
-	newElement = SD.objectCloner(elementProto, spec);
+	var newElement = SD.objectCloner(elementProto, spec);
 	newElement.add = function(element) {
 		this.children.push(element);
 		element.parent = this;
 	};
-	newElement.remove = function(element) {
+	newElement.removeChild = function(element) {
 		var index = this.children.indexOf(element);
 		if (index > -1) {
 			this.children.splice(index, 1);
+			element.parent = null;
 		}
-		element.parent = null;
 	};
 
 	newElement.xRange = function() {return this.range.xMax - this.range.xMin};
   newElement.yRange = function() {return this.range.yMax - this.range.yMin};
+
+	newElement.svgRemoveChild = function(element) {
+		if (this.svgElement && element.svgElement && element.svgElement.parentNode == this.svgElement ) {
+			this.svgElement.removeChild(element.svgElement)
+		}
+	};
+
+	newElement.svgRemoveChildren = function () {
+		for (var i=0;i<this.children.length;i++) {
+			this.svgRemoveChild(this.children[i])
+		}
+	}
 
 	newElement.updateSVG = function() {
 		if (!this.svgElement) {
@@ -100,6 +112,7 @@ SD.elementMaker = function(spec) {
 	};
 
 	newElement.plotSVG = function() {
+		this.svgRemoveChildren();
 		this.updateSVG();
 		this.children.forEach(function(element) {element.plotSVG()});
 		//this.children.forEach(function(element) {this.appendSVG(element)});
@@ -150,6 +163,7 @@ SD.lineMaker = function(spec) {
 	var lineProto = SD.elementMaker(SD.LINE_SPEC);
 	var newLine = SD.objectCloner(lineProto, spec);
 	newLine.color = "black";
+	newLine.svgAttributes["vector-effect"]="non-scaling-stroke";
 	newLine.updateSVG = function() {
 		lineProto.updateSVG.call(this);
 		this.svgElement.setAttribute("x1", this.x1);
@@ -193,7 +207,6 @@ SD.functionGraphMaker = function(spec) {
 				else if (this.style == "-") {
 					if (x1) {
 						var line = SD.lineMaker({x1:x1,y1:y1,x2:x2,y2:y2});
-						console.log(line)
 						if (this.color) {
 							line.color = this.color;
 						}

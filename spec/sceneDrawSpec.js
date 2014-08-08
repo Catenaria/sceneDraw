@@ -78,10 +78,16 @@ describe("elementMaker", function() {
 			});
 		});
 		describe("#remove", function() {
+			it("if element is not the parent, should not set parent=null", function() {
+				element3=SD.elementMaker();
+				element3.add(element2);
+				element.removeChild(element2)
+				expect(element2.parent).not.toBeNull();
+			})
 			describe("removing an element after adding it", function() {
 				beforeEach(function() {
 					element.add(element2);
-					element.remove(element2);
+					element.removeChild(element2);
 				});
 				it("#children should have length 0", function() {
 					expect(element.children.length).toBe(0);
@@ -98,7 +104,6 @@ describe("elementMaker", function() {
 			it("changing to red", function() {
 				element3 = SD.elementMaker({color:"red"});
 				element3.updateSVG();
-				console.log(element3.svgElement);
 				expect(element3.svgElement.getAttribute("stroke")).toBe("red");
 			})
 		})
@@ -219,6 +224,43 @@ describe("elementMaker", function() {
 				});
 			});		
 		})
+
+		describe("remove svg", function() {
+			beforeEach(function() {
+				element3 = SD.elementMaker();
+				element.add(element2);
+				element.add(element3);
+				element.plotSVG();
+			}) 
+			describe("#svgRemoveChild", function() {
+				beforeEach(function() {
+					element.svgRemoveChild(element2);
+				})
+				it("should remove element2.svgElement", function() {
+					expect(element2.svgElement).not.toBeDescendantOf(element.svgElement);
+				})
+				it("should not remove element3.svgElement", function() {
+					expect(element3.svgElement).toBeDescendantOf(element.svgElement);
+				})
+				describe("removing svgElement that is not a child", function() {
+					it("should not change anything", function() {
+						var element4 = SD.elementMaker();
+						element4.plotSVG();
+						element.svgRemoveChild(element4);
+						expect(true).toBe(true);
+					})
+				})
+			})
+			describe("#svgRemoveChildren", function() {
+				it("should remove all children", function() {
+					element.svgRemoveChildren();
+					expect(element2.svgElement).not.toBeDescendantOf(element.svgElement);
+					expect(element3.svgElement).not.toBeDescendantOf(element.svgElement);
+				})
+			})
+		})
+		
+
 		describe("#plotSVG", function() {
 			beforeEach(function() {
 				element.add(element2);
@@ -448,9 +490,8 @@ describe("functionGraphMaker()", function() {
 				it("should be a 'g'", function() {
 					expect(functionGraph.svgElement.nodeName).toBe("g");
 				});
-				it("should create "+SD.NUMBER_OF_SEGMENTS_IN_FUNCTIONGRAPH+" segments", function(){
-					point = SD.pointMaker();
-					var segs = functionGraph.svgElement.getElementsByTagName(point.svgTag);
+				xit("should create "+SD.NUMBER_OF_SEGMENTS_IN_FUNCTIONGRAPH+" segments", function(){
+					var segs = functionGraph.svgElement.getElementsByTagName("line");
 					expect(segs.length).toBe(SD.NUMBER_OF_SEGMENTS_IN_FUNCTIONGRAPH);
 					expect(segs[0].tagName).toBe("line");
 				})
