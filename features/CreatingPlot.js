@@ -49,7 +49,7 @@ describe("Feature: Create a plot, as developer, so that I can present data", fun
 		it("Given a scene",function() {
 		 	expect(scene.div).toBe(div);
 		});
-		var line = SD.lineMaker();
+		var line = SD.lineMaker({style: "->"});
 		scene.add(line);
 		it("And a line= lineMaker() added to the scene",function() {
 			expect(scene.children.length).toBe(1);

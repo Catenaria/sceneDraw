@@ -1,7 +1,7 @@
 var SD = {};
 
 
-SD.LINE_SPEC = {svgTag:"line", x1: 10, y1: 20, x2: 80, y2: 90}
+SD.LINE_SPEC = {svgTag:"line", x1: 10, y1: 20, x2: 80, y2: 90, style:"-"}
 
 SD.NUMBER_OF_SEGMENTS_IN_FUNCTIONGRAPH = 600;
 SD.FUNCTION_GRAPH_SPEC = {
@@ -173,6 +173,36 @@ SD.lineMaker = function(spec) {
     this.svgElement.setAttribute("y1", -this.y1);
     this.svgElement.setAttribute("x2", this.x2);
     this.svgElement.setAttribute("y2", -this.y2);
+
+    if(this.style == "->") {
+      // var point = SD.pointMaker({x:this.x2,y:this.y2});
+      // if (this.color) {
+      // 	point.color = this.color;
+      // }
+      // point.plotSVG();
+      // this.appendSVG(point);
+      // console.log('con estilo');
+
+      console.log('con estilo');
+
+      var size = 50;
+      var width = 1/3;
+      var xRange = this.x2 - this.x1;
+      var yRange = this.y2 - this.y1;
+      var cosTheta = xRange / Math.sqrt(xRange*xRange + yRange*yRange);
+      var senTheta = yRange / Math.sqrt(xRange*xRange + yRange*yRange);
+      var sizeX = size * cosTheta;
+      var sizeY = size * senTheta;
+
+      var arrowLine1 = SD.lineMaker({x1: this.x2-sizeX + sizeY*width, y1:-(this.y2-sizeY + sizeX*width), x2:this.x2, y2: -this.y2});
+      var arrowLine2 = SD.lineMaker({x1: this.x2-sizeX - sizeY*width, y1:-(this.y2-sizeY - sizeX*width), x2:this.x2, y2: -this.y2});
+
+      arrowLine1.plotSVG();
+      arrowLine2.plotSVG();
+
+      this.appendSVG(arrowLine1);
+      this.appendSVG(arrowLine2);
+    }
   }
   return newLine;
 }
