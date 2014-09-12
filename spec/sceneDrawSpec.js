@@ -433,15 +433,77 @@ describe("circleMaker", function() {
   });
 });
 
-describe("lineMaker", function() {
+describe("lineMaker()", function() {
   var line = SD.lineMaker(); 
-  it("should have "+SD.LINE_SPEC, function() {
+  it("should have the specs defined in SD.LINE_SPEC", function() {
     var spec = SD.LINE_SPEC;
     for (var key in spec) {
       expect(line[key]).toBe(spec[key])
     }
   })
+
+  describe("#svgTag", function() {
+    it("should be 'g'", function () {
+      expect(line.svgTag).toBe('g');
+    })
+  });
+
+  describe("#svgElement", function() {
+    describe("after calling #plotSVG", function() {
+      describe("without parent", function() {
+	beforeEach(function() {
+	  line.plotSVG();
+	});
+	it("should be a 'g'", function() {
+	  expect(line.svgElement.nodeName).toBe("g");
+	});
+      })
+    })
+  });
+
+  describe("#children", function() {
+    it("should have one child", function() {
+      expect(line.children.length).toBe(1);
+    });
+    it("which should have 'line' as #svgTag", function() {
+      expect(line.children[0].svgTag).toBe('line');
+    });
+    it("becase the #svgElement is indeed a line", function() {
+      expect(line.children[0].svgElement.nodeName).toBe('line');
+    });
+  });
 })
+
+
+describe("lineMaker({style:'->'})", function() {
+  var line = SD.lineMaker({style:'->'}); 
+  it("should have style '->'", function() {
+    expect(line.style).toBe('->')
+  })
+
+  describe("#children", function() {
+    it("should have two children", function() {
+      expect(line.children.length).toBe(2);
+    });
+    it("the first one should have 'line' as #svgTag", function() {
+      expect(line.children[0].svgTag).toBe('line');
+    });
+  });
+})
+
+
+describe("arrowPointMaker", function () {
+  var arrowPoint = SD.arrowPointMaker(0,0,0);
+  describe("#svgTag",function() {
+    it("should be 'g'", function () {
+      expect(arrowPoint.svgTag).toBe('g');
+    });
+  });
+  it("should have 2 children", function() {
+    expect(arrowPoint.children.length).toBe(2);
+  });
+});
+
 
 describe("pointMaker", function() {
   var point = SD.pointMaker();
