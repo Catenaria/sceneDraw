@@ -248,13 +248,59 @@ describe("Feature: Create a plot, as developer, so that I can present data", fun
       //expect(scene.children.length).toBe(2);
     });
 
-    var arrow9 = SD.lineMaker({style: "-->", x1: 90, x2: 90, y1:10, y2:90});
+    var arrow9 = SD.lineMaker({style: "-->", x1: 90, x2: 90, y1:10, y2:90, arrowSize:30});
     scene.add(arrow9);
-    it("We add another with arrow8 = SD.lineMaker({style: '-->', x1: 90, x2: 90, y1:10, y2:90}); ",function() {
+    it("We add another with arrow8 = SD.lineMaker({style: '-->', arrowSize:30}); ",function() {
       //expect(scene.children.length).toBe(2);
     });
 
     scene.plotSVG();
   });
 
+
+
+  describe("Scenario: Creating a path", function() {
+    var div = document.getElementById("divPaths");
+    var scene = SD.sceneMaker({div:div}); //crear scene
+    it("Given a scene created with 'sceneMaker({div:div})'",function() {
+      expect(scene.div).toBe(div);
+    });
+    var path1 = SD.pathMaker(); //cerar graph of a function
+    scene.add(path1); 
+    var path2 = SD.pathMaker({closed: true, x:[10,30,20], y:[30,30,50]}); //cerar graph of a function
+    scene.add(path2); 
+
+    scene.plotSVG();
+    it("And a path with SD.pathMaker() added to the scene with scene.add(path)",function() {
+      expect(scene.children.length).toBe(2);
+    });
+    it("and another path with SD.pathMaker({closed:true})", function() {
+      expect(scene.children.length).toBe(2);
+    });
+  });
+
+  describe("Scenario: Creating a function with a path", function() {
+    var div = document.getElementById("divFunc");
+    var scene = SD.sceneMaker({div:div}); //crear scene
+    it("Given a scene created with 'sceneMaker({div:div})'",function() {
+      expect(scene.div).toBe(div);
+    });
+    var func = SD.functionGraphMakerPATH(); //cerar graph of a function
+    scene.add(func); 
+    scene.plotSVG();
+    xit("And a function with SD.pathMaker() added to the scene with scene.add(path)",function() {
+      expect(scene.children.length).toBe(2);
+    });
+  });
+
+  describe("Scenario: Creating a path with range", function() {
+    var div = document.getElementById("divPathRange");
+    var scene = SD.sceneMaker({div:div}); //crear scene
+    it("Given a scene created with 'sceneMaker({div:div})'",function() {
+      expect(scene.div).toBe(div);
+    });
+    var path1 = SD.pathMaker({range: {xMin: 20, xMax:80, yMin: 20, yMax: 80}, closed:true}); //cerar graph of a function
+    scene.add(path1).plotSVG();
+  });
+  
 });

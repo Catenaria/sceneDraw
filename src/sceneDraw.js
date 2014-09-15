@@ -1,6 +1,5 @@
 var SD = {};
 
-
 SD.LINE_SPEC = {
   svgTag: 'g', 
   x1: 10, y1: 20, x2: 80, y2: 90, 
@@ -58,6 +57,7 @@ SD.elementMaker = function(spec) {
   newElement.add = function(element) {
     this.children.push(element);
     element.parent = this;
+    return this;
   };
   newElement.removeChild = function(element) {
     var index = this.children.indexOf(element);
@@ -204,6 +204,9 @@ SD.lineMaker = function(spec) {
     if(this.arrowColor) arrowColor = this.arrowColor;
     else                arrowColor = this.color;
 
+    if(this.arrowSize)  arrowSize  = this.arrowSize;
+    else                arrowSize  = 15;
+
     switch (this.style) {
       case '->':
       case '-->':
@@ -250,110 +253,15 @@ SD.lineMaker = function(spec) {
     }
 
     if (arrowPoint1) {
-      arrowPoint1 = SD.arrowPointMaker({x: this.x1, y: this.y1, theta: theta1, color: arrowColor});
+      arrowPoint1 = SD.arrowPointMaker({x: this.x1, y: this.y1, theta: theta1, color: arrowColor, size:arrowSize});
       arrowPoint1.plotSVG();
       this.appendSVG(arrowPoint1);
     }
     if (arrowPoint2) {
-      arrowPoint2 = SD.arrowPointMaker({x: this.x2, y: this.y2, theta: theta2, color: arrowColor});
+      arrowPoint2 = SD.arrowPointMaker({x: this.x2, y: this.y2, theta: theta2, color: arrowColor, size:arrowSize});
       arrowPoint2.plotSVG();
       this.appendSVG(arrowPoint2);
     }
-
-    // if(this.style == "->") {
-    //   var xRange = this.x2 - this.x1;
-    //   var yRange = this.y2 - this.y1;
-    //   var theta = Math.atan2(yRange, xRange);
-    //   var arrowColor;
-
-
-
-    //   var arrowPoint = SD.arrowPointMaker({x: this.x2, y: this.y2, theta: theta, color: arrowColor});
-    //   arrowPoint.plotSVG();
-    //   this.appendSVG(arrowPoint);
-    // }
-
-    // if(this.style == "<-") {
-    //   var xRange = this.x2 - this.x1;
-    //   var yRange = this.y2 - this.y1;
-    //   var theta = Math.atan2(yRange, xRange) + Math.PI;
-    //   var arrowColor;
-
-    //   if(this.arrowColor) arrowColor = this.arrowColor;
-    //   else                arrowColor = this.color;
-
-    //   var arrowPoint = SD.arrowPointMaker({x: this.x1, y: this.y1, theta: theta, color: arrowColor});
-    //   arrowPoint.plotSVG();
-    //   this.appendSVG(arrowPoint);
-    // }
-
-    // if(this.style == "<->") {
-    //   var xRange = this.x2 - this.x1;
-    //   var yRange = this.y2 - this.y1;
-    //   var theta = Math.atan2(yRange, xRange);
-    //   var arrowColor;
-
-    //   if(this.arrowColor) arrowColor = this.arrowColor;
-    //   else                arrowColor = this.color;
-
-    //   var arrowPoint1 = SD.arrowPointMaker({x: this.x1, y: this.y1, theta: theta+Math.PI, color: arrowColor});
-    //   var arrowPoint2 = SD.arrowPointMaker({x: this.x2, y: this.y2, theta: theta, color: arrowColor});
-    //   arrowPoint1.plotSVG();
-    //   arrowPoint2.plotSVG();
-    //   this.appendSVG(arrowPoint1);
-    //   this.appendSVG(arrowPoint2);
-    // }
-
-    // if(this.style == ">->") {
-    //   var xRange = this.x2 - this.x1;
-    //   var yRange = this.y2 - this.y1;
-    //   var theta = Math.atan2(yRange, xRange);
-    //   var arrowColor;
-
-    //   if(this.arrowColor) arrowColor = this.arrowColor;
-    //   else                arrowColor = this.color;
-
-    //   var arrowPoint1 = SD.arrowPointMaker({x: this.x1, y: this.y1, theta: theta, color: arrowColor});
-    //   var arrowPoint2 = SD.arrowPointMaker({x: this.x2, y: this.y2, theta: theta, color: arrowColor});
-    //   arrowPoint1.plotSVG();
-    //   arrowPoint2.plotSVG();
-    //   this.appendSVG(arrowPoint1);
-    //   this.appendSVG(arrowPoint2);
-    // }
-
-    // if(this.style == "<-<") {
-    //   var xRange = this.x2 - this.x1;
-    //   var yRange = this.y2 - this.y1;
-    //   var theta = Math.atan2(yRange, xRange) + Math.PI;
-    //   var arrowColor;
-
-    //   if(this.arrowColor) arrowColor = this.arrowColor;
-    //   else                arrowColor = this.color;
-
-    //   var arrowPoint1 = SD.arrowPointMaker({x: this.x1, y: this.y1, theta: theta, color: arrowColor});
-    //   var arrowPoint2 = SD.arrowPointMaker({x: this.x2, y: this.y2, theta: theta, color: arrowColor});
-    //   arrowPoint1.plotSVG();
-    //   arrowPoint2.plotSVG();
-    //   this.appendSVG(arrowPoint1);
-    //   this.appendSVG(arrowPoint2);
-    // }
-
-    // if(this.style == ">-<") {
-    //   var xRange = this.x2 - this.x1;
-    //   var yRange = this.y2 - this.y1;
-    //   var theta = Math.atan2(yRange, xRange);
-    //   var arrowColor;
-
-    //   if(this.arrowColor) arrowColor = this.arrowColor;
-    //   else                arrowColor = this.color;
-
-    //   var arrowPoint1 = SD.arrowPointMaker({x: this.x1, y: this.y1, theta: theta, color: arrowColor});
-    //   var arrowPoint2 = SD.arrowPointMaker({x: this.x2, y: this.y2, theta: theta+Math.PI, color: arrowColor});
-    //   arrowPoint1.plotSVG();
-    //   arrowPoint2.plotSVG();
-    //   this.appendSVG(arrowPoint1);
-    //   this.appendSVG(arrowPoint2);
-    // }
 
   }
   return newLine;
@@ -376,16 +284,11 @@ SD.arrowPointMaker = function(spec) {
     var alpha = Math.PI/12;
     var betaUp =  alpha + this.theta + Math.PI;
     var betaDown = -alpha + this.theta + Math.PI;
-    
-    console.log(alpha, betaUp, betaDown, this.theta);
 
     var x1 = this.x + this.size*Math.cos(betaUp);
     var y1 = this.y + this.size*Math.sin(betaUp);
     var x2 = this.x;
     var y2 = this.y;
-
-    console.log(Math.cos(betaUp), Math.sin(betaUp));
-    console.log(x1,y1);
 
     lineUp.setAttribute("vector-effect","non-scaling-stroke");
     lineUp.setAttribute("stroke", this.color);
@@ -440,7 +343,6 @@ SD.functionGraphMaker = function(spec) {
 	  }
 	  point.plotSVG();
 	  this.appendSVG(point);
-	  //this.add(point);
 	}
 	else if (this.style == "-") {
 	  if (x1 != null) {
@@ -450,7 +352,6 @@ SD.functionGraphMaker = function(spec) {
 	    }
 	    line.plotSVG();
 	    this.appendSVG(line);
-	    //this.add(line);
 	  }
 	  x1=x2;
 	  y1=y2;
@@ -462,70 +363,52 @@ SD.functionGraphMaker = function(spec) {
   return newFunctionGraph;
 }
 
-/////////////////////////////////////////////
 
-function Flecha(x1,y1,x2,y2, identificator) {
-  this.x1 = x1;
-  this.y1 = y1;
-  this.x2 = x2;
-  this.y2 = y2;
-  this.xRange = this.x2 - this.x1;
-  this.yRange = this.y2 - this.y1;
-  this.cosTheta = this.xRange / Math.sqrt(this.xRange*this.xRange + this.yRange*this.yRange);
-  this.senTheta = this.yRange / Math.sqrt(this.xRange*this.xRange + this.yRange*this.yRange);
-  this.size = 20;
-  this.anchura = 1/3;
 
-  this.remove = function() {
-    var flecha = this.svg().getElementById('flecha' + identificator);
-    if(flecha) { this.svg().removeChild(flecha); };
-    var punta1 = this.svg().getElementById('punta1_' + identificator);
-    if(punta1) { this.svg().removeChild(punta1); };
-    var punta2 = this.svg().getElementById('punta2_' + identificator);
-    if(punta2) { this.svg().removeChild(punta2); };
+SD.pathMaker = function(spec) {
+  var pathProto = SD.elementMaker();
+  pathProto.svgAttributes["fill"] = "none";
+  pathProto.color = "black";
+  pathProto.range = {xMin: 0, xMax:100, yMin: 0, yMax: 100};
+  pathProto.x = [10, 90, 50];
+  pathProto.y = [10, 10, 80];
+  pathProto.closed = false;
+  pathProto.svgTag = "path";
+  pathProto.htmlClasses.push("Path");
+  newPath = SD.objectCloner(pathProto, spec);
+
+  newPath.updateSVG = function() {
+    pathProto.updateSVG.call(this);
+    var d = 'M' + this.x[0] + ' ' + (-this.y[0]);
+    for(var i=1; i<this.x.length; i++) {
+      d+=' L' + this.x[i] + ' ' + (-this.y[i]);
+    }
+    if(this.closed) d+= 'Z';
+    this.svgElement.setAttribute("d", d);
   }
-
-  this.plot = function() {
-    this.remove();
-
-    // Esto lo declaro dentro de plot porque sino, los cambios en size no se reflejan
-    this.sizeX = this.size * this.cosTheta;
-    this.sizeY = this.size * this.senTheta;
-    
-    // Linea de la flecha
-    var flecha =  document.createElementNS("http://www.w3.org/2000/svg", "line");
-    flecha.setAttribute('id', 'flecha' + identificator);
-    flecha.setAttribute('x1',  this.x1);
-    flecha.setAttribute('y1', -this.y1); // Recordar que las coordenadas van al reves
-    flecha.setAttribute('x2',  this.x2);
-    flecha.setAttribute('y2', -this.y2);
-    flecha.setAttribute('style', "stroke:#00aa00;stroke-width:2px");
-    
-    this.svg().appendChild(flecha);
-
-
-    // Punta de la flecha
-    var punta1 =  document.createElementNS("http://www.w3.org/2000/svg", "line");
-    punta1.setAttribute('id',  'punta1_' + identificator);
-    punta1.setAttribute('x1',   this.x2-this.sizeX + this.sizeY*this.anchura);
-    punta1.setAttribute('y1', -(this.y2-this.sizeY + this.sizeX*this.anchura)); // Recordar que las coordenadas van al reves
-    punta1.setAttribute('x2',   this.x2);
-    punta1.setAttribute('y2', - this.y2);
-    punta1.setAttribute('style', "stroke:#00aa00;stroke-width:2px");
-
-    var punta2 =  document.createElementNS("http://www.w3.org/2000/svg", "line");
-    punta2.setAttribute('id',  'punta2_' + identificator);
-    punta2.setAttribute('x1',   this.x2-this.sizeX - this.sizeY*this.anchura);
-    punta2.setAttribute('y1', -(this.y2-this.sizeY - this.sizeX*this.anchura)); // Recordar que las coordenadas van al reves
-    punta2.setAttribute('x2',   this.x2);
-    punta2.setAttribute('y2', - this.y2);
-    punta2.setAttribute('style', "stroke:#00aa00;stroke-width:2px");
-    
-    this.svg().appendChild(punta1);
-    this.svg().appendChild(punta2);
-
-  }
+  return newPath;
 }
 
-//Flecha.prototype = new SceneElement();
+/////////////////////////////// ESPERAR PARA IMPLEMENTARLO
+SD.functionGraphMakerPATH = function(spec) {
+  var functionGraphProto = SD.elementMaker(SD.FUNCTION_GRAPH_SPEC);
+  functionGraphProto.htmlClasses.push("FunctionGraph");
+  newFunctionGraph = SD.objectCloner(functionGraphProto, spec);
 
+  newFunctionGraph.updateSVG = function() {
+    functionGraphProto.updateSVG.call(this);
+    var x = [];
+    var y = [];
+    var path;
+    for (var i=0; i<=this.numberOfSegments; i++) {	
+      x0 = this.range.xMin + i*this.xRange()/this.numberOfSegments;
+      y0 = this.f(x0);
+      x.push(x0);
+      y.push(y0);
+    }
+    path = SD.pathMaker({x: x, y: y});
+    path.plotSVG();
+    this.appendSVG(path);
+  }
+  return newFunctionGraph;
+}

@@ -253,7 +253,6 @@ describe("elementMaker", function() {
       })
       describe("#svgRemoveChildren", function() {
 	it("should remove all children", function() {
-	  console.log(element.svgElement.children.length);
 	  element.svgRemoveChildren();
 	  expect(element2.svgElement).not.toBeDescendantOf(element.svgElement);
 	  expect(element3.svgElement).not.toBeDescendantOf(element.svgElement);
@@ -448,28 +447,18 @@ describe("lineMaker()", function() {
     })
   });
 
-  describe("#svgElement", function() {
-    describe("after calling #plotSVG", function() {
-      describe("without parent", function() {
-	beforeEach(function() {
-	  line.plotSVG();
-	});
-	it("should be a 'g'", function() {
-	  expect(line.svgElement.nodeName).toBe("g");
-	});
-      })
-    })
-  });
-
-  describe("#children", function() {
-    it("should have one child", function() {
-      expect(line.children.length).toBe(1);
+  describe("#svgElement (after calling #plotSVG without parent)", function() {
+    beforeEach(function() {
+      line.plotSVG();
     });
-    it("which should have 'line' as #svgTag", function() {
-      expect(line.children[0].svgTag).toBe('line');
+    it("should be a 'g'", function() {
+      expect(line.svgElement.nodeName).toBe("g");
     });
-    it("becase the #svgElement is indeed a line", function() {
-      expect(line.children[0].svgElement.nodeName).toBe('line');
+    it("should have one child", function () {
+      expect(line.svgElement.children.length).toBe(1);
+    });
+    it("which should have 'line' as node name", function() {
+      expect(line.svgElement.children[0].nodeName).toBe('line');
     });
   });
 })
@@ -477,16 +466,24 @@ describe("lineMaker()", function() {
 
 describe("lineMaker({style:'->'})", function() {
   var line = SD.lineMaker({style:'->'}); 
+  beforeEach(function () {
+    line.plotSVG();
+  });
   it("should have style '->'", function() {
     expect(line.style).toBe('->')
   })
-
-  describe("#children", function() {
-    it("should have two children", function() {
-      expect(line.children.length).toBe(2);
+  describe("#svgElement", function() {
+    beforeEach(function () {
+      line.plotSVG();
     });
-    it("the first one should have 'line' as #svgTag", function() {
-      expect(line.children[0].svgTag).toBe('line');
+    it("should have now two children", function() {
+      expect(line.svgElement.children.length).toBe(2);
+    });
+    it("the first one should have 'line' as node name", function() {
+      expect(line.svgElement.children[0].nodeName).toBe('line');
+    });
+    it("whereas the second should have 'g' as node name", function() {
+      expect(line.svgElement.children[1].nodeName).toBe('g');
     });
   });
 })
@@ -499,8 +496,17 @@ describe("arrowPointMaker", function () {
       expect(arrowPoint.svgTag).toBe('g');
     });
   });
-  it("should have 2 children", function() {
-    expect(arrowPoint.children.length).toBe(2);
+  describe("#svgElement", function() {
+    beforeEach(function () {
+      arrowPoint.plotSVG();
+    });
+    it("should have 2 children", function() {
+      expect(arrowPoint.svgElement.children.length).toBe(2);
+    });
+    it("and both of them should have 'line' as node names", function() {
+      expect(arrowPoint.svgElement.children[0].nodeName).toBe('line');
+      expect(arrowPoint.svgElement.children[0].nodeName).toBe('line');
+    });
   });
 });
 
@@ -602,6 +608,86 @@ describe("functionGraphMaker()", function() {
       expect(functionGraph.updateSVG).toHaveBeenCalled();
     });
   })
+});
+
+
+
+describe("pathMaker", function() {
+  var path;
+
+  beforeEach(function() {
+    path = SD.pathMaker();
+  });
+
+  describe("#svgTag (after calling plotSVG()...)", function() {
+    beforeEach(function() {
+      path.plotSVG();
+    });
+    it("should be 'path'", function () {
+      expect(path.svgTag).toBe('path');
+    });
+  });
+
+  describe("#and svgElement", function() {
+    beforeEach(function() {
+      path.plotSVG();
+    });
+    it("should have 'path' as nodeName", function() {
+      expect(path.svgElement.nodeName).toBe('path');
+    });
+  });
+
+  describe("#htmlClasses", function() {
+    beforeEach(function() {
+      path.plotSVG();
+    });
+    it("should contain 'Path'", function() {
+      expect(path.htmlClasses).toContain("Path");
+    });
+  });
+
+  describe("#x is a vector describing the 'x' coordinates of the points in the path", function() {
+    beforeEach(function() {
+      path.plotSVG();
+    });
+    it("by default, it should be x=[10,90,50]", function() {
+      expect(path.x).toEqual([10,90,50]);
+    });
+  });
+
+  describe("#y is a vector describing the 'y' coordinates of the points in the path", function() {
+    beforeEach(function() {
+      path.plotSVG();
+    });
+    it("by default, it should be x=[10,10,80]", function() {
+      expect(path.y).toEqual([10,10,80]);
+    });
+    it("in any case, both #x and #y should be the same length", function () {
+      expect(path.x.length).toEqual(path.y.length);
+    })
+  });
+
+  describe("#closed is a boolean used to close the path", function() {
+    beforeEach(function() {
+      path.plotSVG();
+    });
+    it("should be 'false' by default", function() {
+      expect(path.closed).toBe(false);
+    });
+    describe('If we make path = SD.pathMaker({closed: true});', function() {
+      beforeEach(function() {
+	path = SD.pathMaker({closed: true});
+	path.plotSVG();
+      });
+      it("then #closed should be 'true'", function() {
+	expect(path.closed).toBe(true);
+      });
+      it("the last character of the 'd' attribute of the svgElement should be 'Z'", function() {
+	expect(path.svgElement.getAttribute("d").slice(-1)).toBe('Z');
+      });
+    });
+  });
+
 
 });
 
