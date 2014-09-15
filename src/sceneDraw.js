@@ -184,17 +184,177 @@ SD.lineMaker = function(spec) {
     line.setAttribute("x2", this.x2);
     line.setAttribute("y2", -this.y2);
 
+    switch (this.style) {
+      case '--': case '-->': case '--<': case '<--': case '>--': case '<-->': case '<--<': case '>-->': case 'case: >--<':
+      line.setAttribute("stroke-dasharray", "2,2");
+      break;
+    }
+
     this.appendSVG(line);
 
-    if(this.style == "->") {
-      var xRange = this.x2 - this.x1;
-      var yRange = this.y2 - this.y1;
-      var theta = Math.atan2(yRange, xRange);
+    //////////////// ARROW POINT /////////////////////
+    var xRange = this.x2 - this.x1;
+    var yRange = this.y2 - this.y1;
+    var theta1 = Math.atan2(yRange, xRange) + Math.PI;
+    var theta2 = Math.atan2(yRange, xRange);
+    var arrowColor;
+    var arrowPoint1;
+    var arrowPoint2;
 
-      var arrowPoint = SD.arrowPointMaker({x: this.x2, y: this.y2, theta: theta});
-      arrowPoint.plotSVG();
-      this.appendSVG(arrowPoint);
+    if(this.arrowColor) arrowColor = this.arrowColor;
+    else                arrowColor = this.color;
+
+    switch (this.style) {
+      case '->':
+      case '-->':
+        arrowPoint2 = true;
+        break;
+      case '<-':
+      case '<--':
+        arrowPoint1 = true;
+        break;
+      case '-<':
+      case '--<':
+        arrowPoint2 = true;
+        theta2 = theta1;
+        break;
+      case '>-':
+      case '>--':
+        arrowPoint1 = true;
+        theta1 = theta2;
+        break;
+      case '<->':
+      case '<-->':
+        arrowPoint1 = true
+        arrowPoint2 = true;
+        break;
+      case '<-<':
+      case '<--<':
+        arrowPoint1 = true
+        arrowPoint2 = true;
+        theta2 = theta1;
+        break;
+      case '>->':
+      case '>-->':
+        arrowPoint1 = true
+        arrowPoint2 = true;
+        theta1 = theta2;
+        break;
+      case '>-<':
+      case '>--<':
+        arrowPoint1 = true
+        arrowPoint2 = true;
+        theta2 = theta1;
+        theta1 += Math.PI;
+        break;
     }
+
+    if (arrowPoint1) {
+      arrowPoint1 = SD.arrowPointMaker({x: this.x1, y: this.y1, theta: theta1, color: arrowColor});
+      arrowPoint1.plotSVG();
+      this.appendSVG(arrowPoint1);
+    }
+    if (arrowPoint2) {
+      arrowPoint2 = SD.arrowPointMaker({x: this.x2, y: this.y2, theta: theta2, color: arrowColor});
+      arrowPoint2.plotSVG();
+      this.appendSVG(arrowPoint2);
+    }
+
+    // if(this.style == "->") {
+    //   var xRange = this.x2 - this.x1;
+    //   var yRange = this.y2 - this.y1;
+    //   var theta = Math.atan2(yRange, xRange);
+    //   var arrowColor;
+
+
+
+    //   var arrowPoint = SD.arrowPointMaker({x: this.x2, y: this.y2, theta: theta, color: arrowColor});
+    //   arrowPoint.plotSVG();
+    //   this.appendSVG(arrowPoint);
+    // }
+
+    // if(this.style == "<-") {
+    //   var xRange = this.x2 - this.x1;
+    //   var yRange = this.y2 - this.y1;
+    //   var theta = Math.atan2(yRange, xRange) + Math.PI;
+    //   var arrowColor;
+
+    //   if(this.arrowColor) arrowColor = this.arrowColor;
+    //   else                arrowColor = this.color;
+
+    //   var arrowPoint = SD.arrowPointMaker({x: this.x1, y: this.y1, theta: theta, color: arrowColor});
+    //   arrowPoint.plotSVG();
+    //   this.appendSVG(arrowPoint);
+    // }
+
+    // if(this.style == "<->") {
+    //   var xRange = this.x2 - this.x1;
+    //   var yRange = this.y2 - this.y1;
+    //   var theta = Math.atan2(yRange, xRange);
+    //   var arrowColor;
+
+    //   if(this.arrowColor) arrowColor = this.arrowColor;
+    //   else                arrowColor = this.color;
+
+    //   var arrowPoint1 = SD.arrowPointMaker({x: this.x1, y: this.y1, theta: theta+Math.PI, color: arrowColor});
+    //   var arrowPoint2 = SD.arrowPointMaker({x: this.x2, y: this.y2, theta: theta, color: arrowColor});
+    //   arrowPoint1.plotSVG();
+    //   arrowPoint2.plotSVG();
+    //   this.appendSVG(arrowPoint1);
+    //   this.appendSVG(arrowPoint2);
+    // }
+
+    // if(this.style == ">->") {
+    //   var xRange = this.x2 - this.x1;
+    //   var yRange = this.y2 - this.y1;
+    //   var theta = Math.atan2(yRange, xRange);
+    //   var arrowColor;
+
+    //   if(this.arrowColor) arrowColor = this.arrowColor;
+    //   else                arrowColor = this.color;
+
+    //   var arrowPoint1 = SD.arrowPointMaker({x: this.x1, y: this.y1, theta: theta, color: arrowColor});
+    //   var arrowPoint2 = SD.arrowPointMaker({x: this.x2, y: this.y2, theta: theta, color: arrowColor});
+    //   arrowPoint1.plotSVG();
+    //   arrowPoint2.plotSVG();
+    //   this.appendSVG(arrowPoint1);
+    //   this.appendSVG(arrowPoint2);
+    // }
+
+    // if(this.style == "<-<") {
+    //   var xRange = this.x2 - this.x1;
+    //   var yRange = this.y2 - this.y1;
+    //   var theta = Math.atan2(yRange, xRange) + Math.PI;
+    //   var arrowColor;
+
+    //   if(this.arrowColor) arrowColor = this.arrowColor;
+    //   else                arrowColor = this.color;
+
+    //   var arrowPoint1 = SD.arrowPointMaker({x: this.x1, y: this.y1, theta: theta, color: arrowColor});
+    //   var arrowPoint2 = SD.arrowPointMaker({x: this.x2, y: this.y2, theta: theta, color: arrowColor});
+    //   arrowPoint1.plotSVG();
+    //   arrowPoint2.plotSVG();
+    //   this.appendSVG(arrowPoint1);
+    //   this.appendSVG(arrowPoint2);
+    // }
+
+    // if(this.style == ">-<") {
+    //   var xRange = this.x2 - this.x1;
+    //   var yRange = this.y2 - this.y1;
+    //   var theta = Math.atan2(yRange, xRange);
+    //   var arrowColor;
+
+    //   if(this.arrowColor) arrowColor = this.arrowColor;
+    //   else                arrowColor = this.color;
+
+    //   var arrowPoint1 = SD.arrowPointMaker({x: this.x1, y: this.y1, theta: theta, color: arrowColor});
+    //   var arrowPoint2 = SD.arrowPointMaker({x: this.x2, y: this.y2, theta: theta+Math.PI, color: arrowColor});
+    //   arrowPoint1.plotSVG();
+    //   arrowPoint2.plotSVG();
+    //   this.appendSVG(arrowPoint1);
+    //   this.appendSVG(arrowPoint2);
+    // }
+
   }
   return newLine;
 }
@@ -205,6 +365,7 @@ SD.arrowPointMaker = function(spec) {
   arrowPointProto.y = 50;
   arrowPointProto.theta = 0;
   arrowPointProto.color = 'black';
+  arrowPointProto.size = 15;
   var newArrowPoint = SD.objectCloner(arrowPointProto, spec);
   newArrowPoint.updateSVG = function() {
     arrowPointProto.updateSVG.call(this);
@@ -212,15 +373,14 @@ SD.arrowPointMaker = function(spec) {
     var lineUp=document.createElementNS("http://www.w3.org/2000/svg", 'line');
     var lineDown=document.createElementNS("http://www.w3.org/2000/svg", 'line');
 
-    var size = 30;
     var alpha = Math.PI/12;
     var betaUp =  alpha + this.theta + Math.PI;
     var betaDown = -alpha + this.theta + Math.PI;
     
     console.log(alpha, betaUp, betaDown, this.theta);
 
-    var x1 = this.x + size*Math.cos(betaUp);
-    var y1 = this.y + size*Math.sin(betaUp);
+    var x1 = this.x + this.size*Math.cos(betaUp);
+    var y1 = this.y + this.size*Math.sin(betaUp);
     var x2 = this.x;
     var y2 = this.y;
 
@@ -234,8 +394,8 @@ SD.arrowPointMaker = function(spec) {
     lineUp.setAttribute("x2", x2);
     lineUp.setAttribute("y2", -y2);
 
-    var x1 = this.x + size*Math.cos(betaDown);
-    var y1 = this.y + size*Math.sin(betaDown);
+    var x1 = this.x + this.size*Math.cos(betaDown);
+    var y1 = this.y + this.size*Math.sin(betaDown);
 
     lineDown.setAttribute("vector-effect","non-scaling-stroke");
     lineDown.setAttribute("stroke", this.color);
