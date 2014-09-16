@@ -121,7 +121,7 @@ describe("Feature: Create a plot, as developer, so that I can present data", fun
       var scene = SD.sceneMaker({div:div}); 
       var functionGraph = SD.functionGraphMaker();
       scene.range =range3;
-      var functionGraph = SD.functionGraphMaker({style:".", color:"blue"})
+      var functionGraph = SD.functionGraphMaker({style:".", color:"blue", numberOfSegments:100, pointSize:"0.1px"})
       functionGraph.range = range3;
       scene.add(functionGraph); 
       scene.plotSVG();
@@ -281,11 +281,13 @@ describe("Feature: Create a plot, as developer, so that I can present data", fun
 
   describe("Scenario: Creating a function with a path", function() {
     var div = document.getElementById("divFunc");
-    var scene = SD.sceneMaker({div:div}); //crear scene
+    var range = {xMin: -10, xMax:10, yMin:-5, yMax: 40};
+    var scene = SD.sceneMaker({div:div, range:range}); //crear scene
     it("Given a scene created with 'sceneMaker({div:div})'",function() {
       expect(scene.div).toBe(div);
     });
-    var func = SD.functionGraphMakerPATH(); //cerar graph of a function
+    var func = SD.functionGraphMaker({style:"-p", range:range}); //crear graph of a function
+    func.f = function (x) { return x*x;};
     scene.add(func); 
     scene.plotSVG();
     xit("And a function with SD.pathMaker() added to the scene with scene.add(path)",function() {
@@ -299,8 +301,9 @@ describe("Feature: Create a plot, as developer, so that I can present data", fun
     it("Given a scene created with 'sceneMaker({div:div})'",function() {
       expect(scene.div).toBe(div);
     });
-    var path1 = SD.pathMaker({range: {xMin: 20, xMax:80, yMin: 20, yMax: 80}, closed:true}); //cerar graph of a function
+    var path1 = SD.pathMaker({range: {xMin: 30, xMax:80, yMin: 5, yMax: 70}, closed:true}); //cerar graph of a function
+    var path2 = SD.pathMaker({x:[30,80,80,30], y:[5,5,70,70],  closed:true});
+    //scene.add(path2);
     scene.add(path1).plotSVG();
   });
-  
 });

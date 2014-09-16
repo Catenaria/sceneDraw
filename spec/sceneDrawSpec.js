@@ -623,8 +623,8 @@ describe("pathMaker", function() {
     beforeEach(function() {
       path.plotSVG();
     });
-    it("should be 'path'", function () {
-      expect(path.svgTag).toBe('path');
+    it("should be 'g'", function () {
+      expect(path.svgTag).toBe('g');
     });
   });
 
@@ -632,8 +632,30 @@ describe("pathMaker", function() {
     beforeEach(function() {
       path.plotSVG();
     });
-    it("should have 'path' as nodeName", function() {
-      expect(path.svgElement.nodeName).toBe('path');
+    it("should have 'g' as nodeName", function() {
+      expect(path.svgElement.nodeName).toBe('g');
+    });
+  });
+
+  describe("the following nodes are contained in the 'g' node:", function() {
+    beforeEach(function() {
+      path.plotSVG();
+    });
+    describe("#defs (containing the clip)", function() {
+      it("should have 'defs' as nodeName", function() {
+	expect(path.svgElement.children[0].nodeName).toBe('defs');
+      });
+      it("and should have a child with 'clipPath as nodeName'", function() {
+	expect(path.svgElement.children[0].children[0].nodeName).toBe('clipPath');
+      });
+    });
+    describe("#path", function() {
+      beforeEach(function() {
+	path.plotSVG();
+      });
+      it("should have 'path' as nodeName", function() {
+	expect(path.svgElement.children[1].nodeName).toBe('path');
+      });
     });
   });
 
@@ -659,8 +681,8 @@ describe("pathMaker", function() {
     beforeEach(function() {
       path.plotSVG();
     });
-    it("by default, it should be x=[10,10,80]", function() {
-      expect(path.y).toEqual([10,10,80]);
+    it("by default, it should be x=[10,10,90]", function() {
+      expect(path.y).toEqual([10,10,90]);
     });
     it("in any case, both #x and #y should be the same length", function () {
       expect(path.x.length).toEqual(path.y.length);
@@ -682,8 +704,8 @@ describe("pathMaker", function() {
       it("then #closed should be 'true'", function() {
 	expect(path.closed).toBe(true);
       });
-      it("the last character of the 'd' attribute of the svgElement should be 'Z'", function() {
-	expect(path.svgElement.getAttribute("d").slice(-1)).toBe('Z');
+      it("the last character of the 'd' attribute of the path node should be 'Z'", function() {
+	expect(path.svgElement.children[1].getAttribute("d").slice(-1)).toBe('Z');
       });
     });
   });

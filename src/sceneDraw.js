@@ -4,7 +4,8 @@ SD.LINE_SPEC = {
   svgTag: 'g', 
   x1: 10, y1: 20, x2: 80, y2: 90, 
   color: 'black',
-  style: '-'
+  style: '-',
+  width: '2px'
 }
 
 SD.NUMBER_OF_SEGMENTS_IN_FUNCTIONGRAPH = 600;
@@ -13,8 +14,10 @@ SD.FUNCTION_GRAPH_SPEC = {
     return 4*x*(1-x/100)
   },
   numberOfSegments: SD.NUMBER_OF_SEGMENTS_IN_FUNCTIONGRAPH,
-  color: null,
-  style: "-"
+  color: 'black',
+  style: "-",
+  pointSize: "1px",
+  width: "2px"
 }
 
 SD.generateIdentificator = function() {
@@ -179,6 +182,7 @@ SD.lineMaker = function(spec) {
 
     line.setAttribute("vector-effect","non-scaling-stroke");
     line.setAttribute("stroke", this.color);
+    line.setAttribute("stroke-width", this.width);
     line.setAttribute("x1", this.x1);
     line.setAttribute("y1", -this.y1);
     line.setAttribute("x2", this.x2);
@@ -314,11 +318,14 @@ SD.arrowPointMaker = function(spec) {
 };
 
 SD.pointMaker = function(spec) {
-  var pointProto = SD.circleMaker({r:1});
+  var pointProto = SD.circleMaker({r:'1'});
   var newPoint=SD.objectCloner(pointProto, spec);
   newPoint.updateSVG = function() {
     pointProto.updateSVG.call(this);
-    this.svgElement.setAttribute("vector-effect", "non-scaling-stroke");
+    // this.svgElement.setAttribute("vector-effect", "non-scaling-stroke");
+    // this.svgElement.setAttribute("stroke-width", "1px");
+    this.svgElement.setAttribute("stroke", "none");
+    this.svgElement.setAttribute("fill", this.color);
   }
   return newPoint;
 };
@@ -332,32 +339,68 @@ SD.functionGraphMaker = function(spec) {
     functionGraphProto.updateSVG.call(this);
     var x1, x2, y1, y2;
     x1 = null;
-    for (var i=0; i<=this.numberOfSegments; i++) {	
-      x2 = this.range.xMin + i*this.xRange()/this.numberOfSegments;
-      y2 = this.f(x2);
-      if (y2 <= this.range.yMax && y2 >= this.range.yMin) {
-	if (this.style == ".") {
-	  var point = SD.pointMaker({x:x2,y:y2});
-	  if (this.color) {
-	    point.color = this.color;
-	  }
+
+    if (this.style == ".") {
+      var point;
+      for (var i=0; i<=this.numberOfSegments; i++) {	
+	x2 = this.range.xMin + i*this.xRange()/this.numberOfSegments;
+	y2 = this.f(x2);
+	if (y2 <= this.range.yMax && y2 >= this.range.yMin) {
+	  point = SD.circleMaker({x:x2,y:y2, r:this.pointSize, color:this.color});
 	  point.plotSVG();
 	  this.appendSVG(point);
 	}
-	else if (this.style == "-") {
+      }
+    }
+    else if (this.style == "-") {
+      var line;
+      for (var i=0; i<=this.numberOfSegments; i++) {
+	x2 = this.range.xMin + i*this.xRange()/this.numberOfSegments;
+	y2 = this.f(x2);
+	if (y2 <= this.range.yMax && y2 >= this.range.yMin) {
 	  if (x1 != null) {
-	    var line = SD.lineMaker({x1:x1,y1:y1,x2:x2,y2:y2});
-	    if (this.color) {
-	      line.color = this.color;
-	    }
+	    line = SD.lineMaker({x1:x1,y1:y1,x2:x2,y2:y2, color:this.color, width:this.width});
 	    line.plotSVG();
 	    this.appendSVG(line);
 	  }
 	  x1=x2;
 	  y1=y2;
 	}
+	else x1 = null;
       }
-      else x1 = null;
+    }
+    else if (this.style == "-p") {
+
+      var x = this.range.xMin;
+      var y = this.f(x);
+      var deltaX = this.xRange()/this.numberOfSegments;
+      var d = "M" + x + " " + (-y) + " ";
+      var jump=true;
+
+      for (var i=1; i<=this.numberOfSegments; i++) {
+	x += deltaX;
+	y  = this.f(x);
+
+	if (y <= this.range.yMax && y >= this.range.yMin) {
+	  if(jump) d += "M";
+	  else     d += "L";
+	  d += "" + x + " " + (-y) + " ";
+	  jump = false;
+	}
+	else {
+	  jump = true;
+	}
+      }
+
+      var path = SD.elementMaker();
+      path.svgTag = "path";
+      path.svgAttributes["fill"] = "none";
+      path.svgAttributes["d"] = d;
+      path.svgAttributes["vector-effect"] = "non-scaling-stroke";
+      path.svgAttributes["stroke-width"] = this.width;
+      path.color = this.color;
+      path.plotSVG();
+      this.appendSVG(path);
     }
   }
   return newFunctionGraph;
@@ -371,44 +414,51 @@ SD.pathMaker = function(spec) {
   pathProto.color = "black";
   pathProto.range = {xMin: 0, xMax:100, yMin: 0, yMax: 100};
   pathProto.x = [10, 90, 50];
-  pathProto.y = [10, 10, 80];
+  pathProto.y = [10, 10, 90];
+  pathProto.width = "2px";
   pathProto.closed = false;
-  pathProto.svgTag = "path";
   pathProto.htmlClasses.push("Path");
   newPath = SD.objectCloner(pathProto, spec);
 
   newPath.updateSVG = function() {
     pathProto.updateSVG.call(this);
+
+    var defs = SD.elementMaker({svgTag: 'defs'});
+    var clip = SD.elementMaker({svgTag: 'clipPath'});
+    var rect = SD.elementMaker({svgTag: 'rect'});
+    var path = SD.elementMaker({svgTag: 'path'});
+
+    var x      =  this.range.xMin;
+    var y      = -this.range.yMax;
+    var width  =  this.range.xMax - this.range.xMin;
+    var height =  this.range.yMax - this.range.yMin;
+
+    rect.svgAttributes["width"]  =  width;
+    rect.svgAttributes["height"] =  height;
+    rect.svgAttributes["x"]      =  x;
+    rect.svgAttributes["y"]      =  y;
+
     var d = 'M' + this.x[0] + ' ' + (-this.y[0]);
     for(var i=1; i<this.x.length; i++) {
       d+=' L' + this.x[i] + ' ' + (-this.y[i]);
     }
     if(this.closed) d+= 'Z';
-    this.svgElement.setAttribute("d", d);
+    path.svgAttributes["d"] = d;
+    path.svgAttributes["clip-path"] = "url(#" + clip.identificator + ")";
+    path.svgAttributes["stroke-width"] = this.width;
+    path.svgAttributes["stroke"] = this.color;
+
+
+    defs.plotSVG();
+    clip.plotSVG();
+    rect.plotSVG();
+    path.plotSVG()
+    
+    this.appendSVG(defs);
+    defs.appendSVG(clip);
+    clip.appendSVG(rect);
+    this.appendSVG(path);
+
   }
   return newPath;
-}
-
-/////////////////////////////// ESPERAR PARA IMPLEMENTARLO
-SD.functionGraphMakerPATH = function(spec) {
-  var functionGraphProto = SD.elementMaker(SD.FUNCTION_GRAPH_SPEC);
-  functionGraphProto.htmlClasses.push("FunctionGraph");
-  newFunctionGraph = SD.objectCloner(functionGraphProto, spec);
-
-  newFunctionGraph.updateSVG = function() {
-    functionGraphProto.updateSVG.call(this);
-    var x = [];
-    var y = [];
-    var path;
-    for (var i=0; i<=this.numberOfSegments; i++) {	
-      x0 = this.range.xMin + i*this.xRange()/this.numberOfSegments;
-      y0 = this.f(x0);
-      x.push(x0);
-      y.push(y0);
-    }
-    path = SD.pathMaker({x: x, y: y});
-    path.plotSVG();
-    this.appendSVG(path);
-  }
-  return newFunctionGraph;
 }
