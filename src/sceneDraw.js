@@ -353,34 +353,15 @@ SD.functionGraphMaker = function(spec) {
       }
     }
     else if (this.style == "-") {
-      var line;
-      for (var i=0; i<=this.numberOfSegments; i++) {
-	x2 = this.range.xMin + i*this.xRange()/this.numberOfSegments;
-	y2 = this.f(x2);
-	if (y2 <= this.range.yMax && y2 >= this.range.yMin) {
-	  if (x1 != null) {
-	    line = SD.lineMaker({x1:x1,y1:y1,x2:x2,y2:y2, color:this.color, width:this.width});
-	    line.plotSVG();
-	    this.appendSVG(line);
-	  }
-	  x1=x2;
-	  y1=y2;
-	}
-	else x1 = null;
-      }
-    }
-    else if (this.style == "-p") {
 
       var x = this.range.xMin;
-      var y = this.f(x);
+      var y;
       var deltaX = this.xRange()/this.numberOfSegments;
-      var d = "M" + x + " " + (-y) + " ";
-      var jump=true;
+      var d = "";
+      var jump = true;
 
       for (var i=1; i<=this.numberOfSegments; i++) {
-	x += deltaX;
 	y  = this.f(x);
-
 	if (y <= this.range.yMax && y >= this.range.yMin) {
 	  if(jump) d += "M";
 	  else     d += "L";
@@ -390,9 +371,11 @@ SD.functionGraphMaker = function(spec) {
 	else {
 	  jump = true;
 	}
+	x += deltaX;
       }
 
       var path = SD.elementMaker();
+      path.htmlClasses = this.htmlClasses;
       path.svgTag = "path";
       path.svgAttributes["fill"] = "none";
       path.svgAttributes["d"] = d;
@@ -402,6 +385,24 @@ SD.functionGraphMaker = function(spec) {
       path.plotSVG();
       this.appendSVG(path);
     }
+
+    // else if (this.style == "-l") {
+    //   var line;
+    //   for (var i=0; i<=this.numberOfSegments; i++) {
+    // 	x2 = this.range.xMin + i*this.xRange()/this.numberOfSegments;
+    // 	y2 = this.f(x2);
+    // 	if (y2 <= this.range.yMax && y2 >= this.range.yMin) {
+    // 	  if (x1 != null) {
+    // 	    line = SD.lineMaker({x1:x1,y1:y1,x2:x2,y2:y2, color:this.color, width:this.width});
+    // 	    line.plotSVG();
+    // 	    this.appendSVG(line);
+    // 	  }
+    // 	  x1=x2;
+    // 	  y1=y2;
+    // 	}
+    // 	else x1 = null;
+    //   }
+    // }
   }
   return newFunctionGraph;
 }

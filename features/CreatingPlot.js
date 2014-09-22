@@ -286,7 +286,7 @@ describe("Feature: Create a plot, as developer, so that I can present data", fun
     it("Given a scene created with 'sceneMaker({div:div})'",function() {
       expect(scene.div).toBe(div);
     });
-    var func = SD.functionGraphMaker({style:"-p", range:range}); //crear graph of a function
+    var func = SD.functionGraphMaker({range:range}); //crear graph of a function
     func.f = function (x) { return x*x;};
     scene.add(func); 
     scene.plotSVG();
