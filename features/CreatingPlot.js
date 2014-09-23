@@ -49,7 +49,7 @@ describe("Feature: Create a plot, as developer, so that I can present data", fun
     it("Given a scene",function() {
       expect(scene.div).toBe(div);
     });
-    var line = SD.lineMaker({style: "->"});
+    var line = SD.lineMaker();
     scene.add(line);
     it("And a line= lineMaker() added to the scene",function() {
       expect(scene.children.length).toBe(1);
@@ -305,5 +305,46 @@ describe("Feature: Create a plot, as developer, so that I can present data", fun
     var path2 = SD.pathMaker({x:[30,80,80,30], y:[5,5,70,70],  closed:true});
     //scene.add(path2);
     scene.add(path1).plotSVG();
+  });
+
+
+  describe("Scenario: Creating a parametric plot with points", function() {
+    var div = document.getElementById("divParametricPlotPoint");
+    var scene = SD.sceneMaker({div:div, range: {xMin:-10, yMin: -10, xMax: 10, yMax: 10}}); //crear scene
+    it("Given a scene created with 'sceneMaker({div:div})'",function() {
+      expect(scene.div).toBe(div);
+    });
+    var plot = SD.parametricPlotMaker({style:'.', range: {xMin:-10, yMin: -10, xMax: 10, yMax: 10}, pointSize: "0.01px", t2: 3*Math.PI});
+    scene.add(plot);
+    scene.plotSVG();
+  });
+
+  describe("Scenario: Creating a parametric plot with points", function() {
+    var div = document.getElementById("divParametricPlotPath");
+    var scene = SD.sceneMaker({div:div, range: {xMin:-10, yMin: -10, xMax: 10, yMax: 10}}); //crear scene
+    it("Given a scene created with 'sceneMaker({div:div})'",function() {
+      expect(scene.div).toBe(div);
+    });
+    var plot = SD.parametricPlotMaker(
+      {range:{xMin:-10, yMin: -10, xMax: 10, yMax: 10},
+       t2: 14.1*Math.PI,
+       color: 'red',
+       x: function (t) {return 9*Math.cos(t)*Math.cos(6/7*t);}, 
+       y: function (t) {return 9*Math.sin(t)*Math.cos(6/7*t);}
+      });
+    scene.add(plot);
+    scene.plotSVG();
+  });
+
+  describe("Scenario: Creating a polar plot with a path", function() {
+    var div = document.getElementById("divPolarPlotPath");
+    var range = {xMin:-10, yMin: -10, xMax: 10, yMax: 10}
+    var scene = SD.sceneMaker({div:div, range: range}); //crear scene
+    it("Given a scene created with 'sceneMaker({div:div})'",function() {
+      expect(scene.div).toBe(div);
+    });
+    var plot = SD.parametricPlotMaker({ range:range });
+    scene.add(plot);
+    scene.plotSVG();
   });
 });

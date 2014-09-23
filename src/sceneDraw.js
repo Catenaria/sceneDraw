@@ -20,6 +20,37 @@ SD.FUNCTION_GRAPH_SPEC = {
   width: "2px"
 }
 
+SD.PARAMETRIC_PLOT_SPEC = {
+  x: function(t) {
+    return t*Math.cos(t);
+  },
+  y: function(t) {
+    return t*Math.sin(t);
+  },
+  t1: 0,
+  t2: 2*Math.PI,
+  numberOfSegments: SD.NUMBER_OF_SEGMENTS_IN_FUNCTIONGRAPH,
+  color: 'black',
+  style: "-",
+  pointSize: "1px",
+  width: "2px"
+}
+
+SD.POLAR_PLOT_SPEC = {
+  r: function(theta) {
+    return theta;
+  },
+  theta1: 0,
+  theta2: 2*Math.PI,
+  numberOfSegments: SD.NUMBER_OF_SEGMENTS_IN_FUNCTIONGRAPH,
+  color: 'black',
+  style: "-",
+  pointSize: "1px",
+  width: "2px"
+}
+
+
+
 SD.generateIdentificator = function() {
   return Math.random().toString();
 };
@@ -330,84 +361,6 @@ SD.pointMaker = function(spec) {
   return newPoint;
 };
 
-SD.functionGraphMaker = function(spec) {
-  var functionGraphProto = SD.elementMaker(SD.FUNCTION_GRAPH_SPEC);
-  functionGraphProto.htmlClasses.push("FunctionGraph");
-  newFunctionGraph = SD.objectCloner(functionGraphProto, spec);
-
-  newFunctionGraph.updateSVG = function() {
-    functionGraphProto.updateSVG.call(this);
-    var x1, x2, y1, y2;
-    x1 = null;
-
-    if (this.style == ".") {
-      var point;
-      for (var i=0; i<=this.numberOfSegments; i++) {	
-	x2 = this.range.xMin + i*this.xRange()/this.numberOfSegments;
-	y2 = this.f(x2);
-	if (y2 <= this.range.yMax && y2 >= this.range.yMin) {
-	  point = SD.circleMaker({x:x2,y:y2, r:this.pointSize, color:this.color});
-	  point.plotSVG();
-	  this.appendSVG(point);
-	}
-      }
-    }
-    else if (this.style == "-") {
-
-      var x = this.range.xMin;
-      var y;
-      var deltaX = this.xRange()/this.numberOfSegments;
-      var d = "";
-      var jump = true;
-
-      for (var i=1; i<=this.numberOfSegments; i++) {
-	y  = this.f(x);
-	if (y <= this.range.yMax && y >= this.range.yMin) {
-	  if(jump) d += "M";
-	  else     d += "L";
-	  d += "" + x + " " + (-y) + " ";
-	  jump = false;
-	}
-	else {
-	  jump = true;
-	}
-	x += deltaX;
-      }
-
-      var path = SD.elementMaker();
-      path.htmlClasses = this.htmlClasses;
-      path.svgTag = "path";
-      path.svgAttributes["fill"] = "none";
-      path.svgAttributes["d"] = d;
-      path.svgAttributes["vector-effect"] = "non-scaling-stroke";
-      path.svgAttributes["stroke-width"] = this.width;
-      path.color = this.color;
-      path.plotSVG();
-      this.appendSVG(path);
-    }
-
-    // else if (this.style == "-l") {
-    //   var line;
-    //   for (var i=0; i<=this.numberOfSegments; i++) {
-    // 	x2 = this.range.xMin + i*this.xRange()/this.numberOfSegments;
-    // 	y2 = this.f(x2);
-    // 	if (y2 <= this.range.yMax && y2 >= this.range.yMin) {
-    // 	  if (x1 != null) {
-    // 	    line = SD.lineMaker({x1:x1,y1:y1,x2:x2,y2:y2, color:this.color, width:this.width});
-    // 	    line.plotSVG();
-    // 	    this.appendSVG(line);
-    // 	  }
-    // 	  x1=x2;
-    // 	  y1=y2;
-    // 	}
-    // 	else x1 = null;
-    //   }
-    // }
-  }
-  return newFunctionGraph;
-}
-
-
 
 SD.pathMaker = function(spec) {
   var pathProto = SD.elementMaker();
@@ -462,4 +415,102 @@ SD.pathMaker = function(spec) {
 
   }
   return newPath;
+}
+
+
+
+
+
+SD.parametricPlotMaker = function(spec) {
+  var parametricPlotProto = SD.elementMaker(SD.PARAMETRIC_PLOT_SPEC);
+  parametricPlotProto.htmlClasses.push("parametricPlot");
+  newParametricPlot = SD.objectCloner(parametricPlotProto, spec);
+
+  newParametricPlot.updateSVG = function() {
+    parametricPlotProto.updateSVG.call(this);
+
+    if (this.style == ".") {
+      var point;
+      var t, x, y;
+      for (var i=0; i<=this.numberOfSegments; i++) {	
+	t  = this.t1 + i*(this.t2-this.t1)/this.numberOfSegments;
+	x = this.x(t);
+	y = this.y(t);
+	if (x >= this.range.xMin && x <= this.range.xMax && y <= this.range.yMax && y >= this.range.yMin) {
+	  point = SD.circleMaker({x:x,y:y, r:this.pointSize, color:this.color});
+	  point.plotSVG();
+	  this.appendSVG(point);
+	}
+      }
+    }
+    else if (this.style == "-") {
+
+      var t = this.t1;
+      var deltaT = (this.t2-this.t1)/this.numberOfSegments
+      var x, y;
+      var d = "";
+      var jump = true;
+
+      for (var i=1; i<=this.numberOfSegments; i++) {
+	x = this.x(t);
+	y = this.y(t);
+	if (x >= this.range.xMin && x <= this.range.xMax && y <= this.range.yMax && y >= this.range.yMin) {
+	  if(jump) d += "M";
+	  else     d += "L";
+	  d += "" + x + " " + (-y) + " ";
+	  jump = false;
+	}
+	else {
+	  jump = true;
+	}
+	t += deltaT;
+      }
+
+      var path = SD.elementMaker();
+      path.htmlClasses = this.htmlClasses;
+      path.svgTag = "path";
+      path.svgAttributes["fill"] = "none";
+      path.svgAttributes["d"] = d;
+      path.svgAttributes["vector-effect"] = "non-scaling-stroke";
+      path.svgAttributes["stroke-width"] = this.width;
+      path.color = this.color;
+      path.plotSVG();
+      this.appendSVG(path);
+    }
+  }
+  return newParametricPlot;
+}
+
+
+SD.polarPlot = function(spec) {
+  var polarPlotProto = SD.parametricPlotMaker(SD.POLAR_PLOT_SPEC);
+  functionGraphProto.htmlClasses.push("polarPlot");
+  newFunctionGraph = SD.objectCloner(functionGraphProto, spec);
+
+  newFunctionGraph.updateSVG = function() {
+    var obj = this;
+    this.x = function (t) { return obj.r(t)*Math.cos(t); };
+    this.y = function (t) { return obj.r(t)*Math.sin(t); };
+    this.t1 = this.theta1;
+    this.t2 = this.theta2;
+    functionGraphProto.updateSVG.call(this);
+  }
+  return newFunctionGraph;
+}
+
+
+SD.functionGraphMaker = function(spec) {
+  var functionGraphProto = SD.parametricPlotMaker(SD.FUNCTION_GRAPH_SPEC);
+  functionGraphProto.htmlClasses.push("FunctionGraph");
+  newFunctionGraph = SD.objectCloner(functionGraphProto, spec);
+
+  newFunctionGraph.updateSVG = function() {
+    var obj = this;
+    this.x = function (t) { return t; };
+    this.y = this.f;
+    this.t1 = this.range.xMin;
+    this.t2 = this.range.xMax;
+    functionGraphProto.updateSVG.call(this);
+  }
+  return newFunctionGraph;
 }
